@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Calificar Punto</title>
+    <link rel="stylesheet" href="../estilos.css">
+    <style>
+        body {
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .box {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            width: 360px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        h2 { color: #2c3e50; margin-bottom: 5px; }
+
+        .nombre-punto {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        /* Sistema de estrellas interactivo */
+        .estrellas {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 15px 0;
+            font-size: 36px;
+            cursor: pointer;
+        }
+
+        .estrellas span {
+            transition: transform 0.1s;
+            color: #ddd; /* gris por defecto */
+        }
+
+        .estrellas span.activa {
+            color: #f1c40f; /* amarillo cuando está seleccionada */
+        }
+
+        .estrellas span:hover {
+            transform: scale(1.2);
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin: 10px 0;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover { background: #2980b9; }
+
+        .links-nav {
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        .links-nav a { color: #3498db; text-decoration: none; }
+        .links-nav a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>⭐ Calificar punto</h2>
+    <p class="nombre-punto" id="nombre-punto">Cargando...</p>
+
+    <p><strong>Selecciona una calificación:</strong></p>
+
+    <!-- Las 5 estrellas, cada una tiene un data-valor del 1 al 5 -->
+    <div class="estrellas" id="estrellas">
+        <span data-valor="1">★</span>
+        <span data-valor="2">★</span>
+        <span data-valor="3">★</span>
+        <span data-valor="4">★</span>
+        <span data-valor="5">★</span>
+    </div>
+
+    <textarea id="resena" placeholder="Escribe tu reseña aquí (opcional)..."></textarea>
+
+    <button onclick="guardarResena()">Enviar calificación</button>
+
+    <div class="links-nav">
+        <a href="../mapa.html">⬅ Volver al mapa</a>
+        &nbsp;|&nbsp;
+        <a id="link-resenas" href="#">Ver reseñas de este punto</a>
+    </div>
+</div>
+
+<script src="../js/auth.js"></script>
+<script>
+    // ── PASO 1: Verificar sesión ──────────────────────────────────────────────
+    // Si no hay usuario activo en localStorage, mandamos al login.
+    // Esta verificación ocurre antes de que el usuario vea cualquier cosa.
+    const usuario = JSON.parse(localStorage.getItem('usuarioActivo'));
+    if (!usuario) {
+        // Guardamos la página actual para poder regresar después del login (opcional, para mejora futura)
+        window.location.href = 'login.html';
+    }
+
+    // ── PASO 2: Leer el nombre del punto desde la URL ─────────────────────────
+    // Por ejemplo, si la URL es: calificar.html?nombre=Casa%20Lopez
+    // URLSearchParams nos da fácil acceso a esos parámetros
+    const params = new URLSearchParams(window.location.search);
+    const nombrePunto = params.get('nombre'); // "Casa Lopez"
+
+    if (!nombrePunto) {
+        // Si alguien entró a la página sin parámetro, lo mandamos al mapa
+        window.location.href = '../mapa.html';
+    }
+
+    // Mostramos el nombre del punto en la página
+    document.getElementById('nombre-punto').textContent = nombrePunto;
+
+    // También actualizamos el link a "Ver reseñas" para este mismo punto
+    document.getElementById('link-resenas').href = 
+        `resenas.html?nombre=${encodeURIComponent(nombrePunto)}`;
+
+    // ── PASO 3: Sistema de estrellas interactivo ──────────────────────────────
+    let calificacionSeleccionada = 0;
+
+    const estrellasDiv = document.getElementById('estrellas');
+    const todasLasEstrellas = estrellasDiv.querySelectorAll('span');
+
+    // Función que pinta las estrellas hasta el índice 'n'
+    function pintarEstrellas(n) {
+        todasLasEstrellas.forEach((estrella, index) => {
+            // Si el índice (base 0) es menor que n, está activa
+            estrella.classList.toggle('activa', index < n);
+        });
+    }
+
+    // Al pasar el mouse por encima, mostramos una vista previa
+    todasLasEstrellas.forEach(estrella => {
+        estrella.addEventListener('mouseover', () => {
+            pintarEstrellas(estrella.dataset.valor);
+        });
+
+        // Al quitar el mouse, volvemos a mostrar la selección real
+        estrella.addEventListener('mouseout', () => {
+            pintarEstrellas(calificacionSeleccionada);
+        });
+
+        // Al hacer clic, confirmamos la selección
+        estrella.addEventListener('click', () => {
+            calificacionSeleccionada = parseInt(estrella.dataset.valor);
+            pintarEstrellas(calificacionSeleccionada);
+        });
+    });
+
+    // ── PASO 4: Guardar la reseña en localStorage ─────────────────────────────
+    function guardarResena() {
+        if (calificacionSeleccionada === 0) {
+            alert('Por favor selecciona al menos 1 estrella antes de enviar.');
+            return;
+        }
+
+        const texto = document.getElementById('resena').value.trim();
+
+        // La clave en localStorage es única por punto
+        const clave = `resenas_${nombrePunto}`;
+
+        // Cargamos las reseñas existentes de este punto (o array vacío si no hay)
+        const resenasExistentes = JSON.parse(localStorage.getItem(clave)) || [];
+
+        // Construimos la nueva reseña con los datos del usuario activo
+        const nuevaResena = {
+            usuario: usuario.nombre,      // nombre del usuario logueado
+            calificacion: calificacionSeleccionada,
+            texto: texto,
+            fecha: new Date().toLocaleDateString('es-CO') // ej: "24/4/2026"
+        };
+
+        resenasExistentes.push(nuevaResena);
+
+        // Guardamos el arreglo actualizado
+        localStorage.setItem(clave, JSON.stringify(resenasExistentes));
+
+        alert('¡Gracias por tu reseña, ' + usuario.nombre + '!');
+        window.location.href = '../mapa.html';
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reseñas</title>
+    <link rel="stylesheet" href="../estilos.css">
+    <style>
+        body {
+            background: #f5f5f5;
+            padding: 30px 20px;
+        }
+
+        .contenedor-resenas {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+
+        h2 { color: #2c3e50; }
+
+        .nombre-punto {
+            color: #7f8c8d;
+            margin-bottom: 25px;
+            font-size: 15px;
+        }
+
+        /* Cada tarjeta de reseña */
+        .tarjeta-resena {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .cabecera-resena {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .nombre-usuario {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .fecha-resena {
+            font-size: 12px;
+            color: #95a5a6;
+        }
+
+        .estrellas-resena {
+            color: #f1c40f;
+            font-size: 18px;
+            margin-bottom: 6px;
+        }
+
+        .texto-resena {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .sin-resenas {
+            text-align: center;
+            color: #95a5a6;
+            padding: 40px 0;
+            font-size: 15px;
+        }
+
+        .promedio-global {
+            background: #eaf4fb;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .promedio-numero {
+            font-size: 36px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .promedio-estrellas {
+            font-size: 24px;
+            color: #f1c40f;
+        }
+
+        .promedio-total {
+            color: #7f8c8d;
+            font-size: 13px;
+        }
+
+        .nav-links {
+            margin-top: 20px;
+        }
+
+        .nav-links a {
+            color: #3498db;
+            text-decoration: none;
+            font-size: 14px;
+            margin-right: 15px;
+        }
+
+        .nav-links a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="contenedor-resenas">
+    <h2>💬 Reseñas</h2>
+    <p class="nombre-punto" id="nombre-punto">Cargando...</p>
+
+    <!-- Aquí se muestra el promedio calculado dinámicamente -->
+    <div class="promedio-global" id="bloque-promedio" style="display:none;">
+        <div class="promedio-numero" id="promedio-numero">0</div>
+        <div class="promedio-estrellas" id="promedio-estrellas"></div>
+        <div class="promedio-total" id="promedio-total"></div>
+    </div>
+
+    <!-- Aquí se insertan las tarjetas de reseñas -->
+    <div id="lista-resenas"></div>
+
+    <div class="nav-links">
+        <a id="link-calificar" href="#">⭐ Calificar este punto</a>
+        <a href="../mapa.html">⬅ Volver al mapa</a>
+    </div>
+</div>
+
+<script>
+    // ── PASO 1: Verificar sesión ──────────────────────────────────────────────
+    const usuario = JSON.parse(localStorage.getItem('usuarioActivo'));
+    if (!usuario) {
+        window.location.href = 'login.html';
+    }
+
+    // ── PASO 2: Leer el nombre del punto desde la URL ─────────────────────────
+    const params = new URLSearchParams(window.location.search);
+    const nombrePunto = params.get('nombre');
+
+    if (!nombrePunto) {
+        window.location.href = '../mapa.html';
+    }
+
+    document.getElementById('nombre-punto').textContent = nombrePunto;
+
+    // También actualizamos el enlace para calificar este mismo punto
+    document.getElementById('link-calificar').href = 
+        `calificar.html?nombre=${encodeURIComponent(nombrePunto)}`;
+
+    // ── PASO 3: Cargar y mostrar las reseñas ─────────────────────────────────
+    const clave = `resenas_${nombrePunto}`;
+    const resenas = JSON.parse(localStorage.getItem(clave)) || [];
+
+    const listaDiv = document.getElementById('lista-resenas');
+
+    if (resenas.length === 0) {
+        // No hay reseñas todavía
+        listaDiv.innerHTML = `
+            <div class="sin-resenas">
+                <p>Aún no hay reseñas para este punto.<br>¡Sé el primero en calificarlo!</p>
+            </div>
+        `;
+    } else {
+        // ── Calcular promedio ─────────────────────────────────────────────────
+        // Sumamos todas las calificaciones y dividimos por la cantidad
+        const sumaTotal = resenas.reduce((acum, r) => acum + r.calificacion, 0);
+        const promedio = (sumaTotal / resenas.length).toFixed(1); // ej: "3.7"
+
+        // Generamos las estrellas del promedio (redondeamos para pintar)
+        const estrellasPromedio = generarEstrellas(Math.round(promedio));
+
+        // Mostramos el bloque de promedio
+        document.getElementById('bloque-promedio').style.display = 'block';
+        document.getElementById('promedio-numero').textContent = promedio;
+        document.getElementById('promedio-estrellas').textContent = estrellasPromedio;
+        document.getElementById('promedio-total').textContent = 
+            `Basado en ${resenas.length} reseña${resenas.length > 1 ? 's' : ''}`;
+
+        // ── Renderizar cada reseña ────────────────────────────────────────────
+        // Mostramos las más recientes primero (invertimos el arreglo)
+        [...resenas].reverse().forEach(r => {
+            const tarjeta = document.createElement('div');
+            tarjeta.className = 'tarjeta-resena';
+            tarjeta.innerHTML = `
+                <div class="cabecera-resena">
+                    <span class="nombre-usuario">👤 ${r.usuario}</span>
+                    <span class="fecha-resena">${r.fecha}</span>
+                </div>
+                <div class="estrellas-resena">${generarEstrellas(r.calificacion)}</div>
+                ${r.texto ? `<p class="texto-resena">${r.texto}</p>` : '<p class="texto-resena" style="color:#bbb;font-style:italic;">Sin comentario escrito.</p>'}
+            `;
+            listaDiv.appendChild(tarjeta);
+        });
+    }
+
+    // ── Función auxiliar: generar estrellas ───────────────────────────────────
+    // La misma lógica que en main.js, pero aquí usamos ★ y ☆ como texto
+    function generarEstrellas(calificacion) {
+        let resultado = "";
+        for (let i = 1; i <= 5; i++) {
+            resultado += (i <= calificacion) ? "★" : "☆";
+        }
+        return resultado;
+    }
+</script>
+
+</body>
+</html>

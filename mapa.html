@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puntos de Interés en Getsemaní</title>  
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Tus estilos -->
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+    <script src="js/auth.js"></script> <!--N-->
+
+    <div class="contenedor">Puntos de Interés en Getsemaní
+        <h1>Puntos de Interés en el barrio Getsemaní</h1>
+        <div class="filtros">
+            <button data-tipo="Todos">Todos</button>
+            <button data-tipo="Comercio">Comercios</button>
+            <button data-tipo="Patrimonio">Patrimonio</button>
+            <button data-tipo="Ambiente">Ambiente</button>
+            <button data-tipo="Vivienda">Vivienda</button>
+        </div>
+        <div id="mapa"></div>
+    </div>
+
+    <button id="btn-login">Iniciar sesión</button>
+    <div id="modal-login" class="modal">
+        <div class="modal-contenido">
+            <span id="cerrar-modal">&times;</span>
+            <h2>Iniciar Sesión</h2>
+
+            <form onsubmit="event.preventDefault(); iniciarSesion();">
+                <label>Email:</label>
+                <input type="email" id="email" required>
+
+                <label>Contraseña:</label>
+                <input type="password" id="password" required>
+
+                <button type="submit">Ingresar</button>
+            </form>
+
+            <p id="registro-link">¿No tienes cuenta? <a href="#">Regístrate</a></p>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Tu JavaScript -->
+    <script src="js/main.js"></script>
+</body>
+</html>

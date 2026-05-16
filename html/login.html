@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+
+    <!-- CSS (sube un nivel) -->
+    <link rel="stylesheet" href="../estilos.css">
+
+    <style>
+        body {
+            background: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .login-box {
+            border: 2px solid black;
+            padding: 30px;
+            width: 300px;
+            text-align: center;
+        }
+
+        input {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            border: 2px solid black;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: black;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        a {
+            color: black;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-box">
+    <h2>Iniciar Sesión</h2>
+
+    <form onsubmit="event.preventDefault(); iniciarSesion();">
+        <input type="email" id="email" placeholder="Correo" required>
+        <input type="password" id="password" placeholder="Contraseña" required>
+        <button type="submit">Iniciar sesión</button>
+    </form>
+
+    <p>¿No tienes cuenta? <a href="registrar.html">Regístrate</a></p>
+
+    <br>
+    <a href="../mapa.html">⬅ Volver al mapa</a>
+</div>
+
+<!-- JS (sube un nivel) -->
+<script src="../js/auth.js"></script>
+
+<script>
+function iniciarSesion() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    login(email, password);
+}
+</script>
+
+</body>
+</html>

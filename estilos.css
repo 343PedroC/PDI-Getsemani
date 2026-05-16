@@ -1,0 +1,157 @@
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f5f5f5;
+}
+
+.contenedor {
+    max-width: 1000px; /*HERE*/
+    margin: 0 auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+.filtros {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.filtros button {
+    padding: 10px 15px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.filtros button:hover {
+    background: #2980b9;
+}
+
+#mapa {
+    width: 100%;
+    height: 500px;
+    border-radius: 8px;
+    border: 2px solid #ddd;
+}
+
+#btn-login {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #2c7be5;
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 50px;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    z-index: 1000;
+}
+
+#btn-login:hover {
+    background-color: #1a5edb;
+}
+
+/* MODAL */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-contenido {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    width: 300px;
+    text-align: center;
+}
+
+/* inputs */
+.modal-contenido input {
+    width: 100%;
+    margin: 10px 0;
+    padding: 10px;
+    border: 2px solid black;
+}
+
+/* botón */
+.modal-contenido button {
+    width: 100%;
+    padding: 10px;
+    background: black;
+    color: white;
+    border: none;
+}
+
+/* cerrar */
+#cerrar-modal {
+    float: right;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+/* link */
+#registro-link a {
+    color: black;
+    text-decoration: underline;
+}
+
+/*Estilos para los popups*/
+.leaflet-popup-content h3 {
+    margin: 0 0 10px;
+    color: #2c3e50;
+}
+
+.leaflet-popup-content img {
+    max-width: 250px;       
+    height: auto;           
+    border-radius: 8px;     
+    border: 2px solid #ddd; 
+    display: block;         
+    margin: 5px auto;  
+}
+
+.leaflet-popup-content {
+    width: auto !important; 
+    max-width: 300px;       
+    padding: 10px;
+}
+
+/* Estilo para los enlaces dentro de los popups del mapa */
+.leaflet-popup-content a {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.leaflet-popup-content a:hover {
+    text-decoration: underline;
+}
+
+/* Pequeño ajuste de espaciado entre párrafos del popup */
+.leaflet-popup-content p {
+    margin: 5px 0;
+}

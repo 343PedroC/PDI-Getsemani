@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registrar</title>
+
+    <link rel="stylesheet" href="../estilos.css">
+
+    <style>
+        body {
+            background: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .box {
+            border: 2px solid black;
+            padding: 30px;
+            width: 320px;
+            text-align: center;
+        }
+
+        input {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            border: 2px solid black;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: black;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        a {
+            color: black;
+        }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>Registrar</h2>
+
+    <form onsubmit="event.preventDefault(); registrarUsuario();">
+        <input type="text" id="nombre" placeholder="Nombre(s)" required>
+        <input type="text" id="apellidos" placeholder="Apellidos" required>
+        <input type="email" id="email" placeholder="Correo" required>
+        <input type="password" id="password" placeholder="Contraseña" required>
+
+        <button type="submit">Completar</button>
+    </form>
+
+    <p>¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a></p>
+</div>
+
+<script src="../js/auth.js"></script>
+
+<script>
+function registrarUsuario() {
+    const nombre = document.getElementById('nombre').value;
+    const apellidos = document.getElementById('apellidos').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    registrar(nombre, apellidos, email, password);
+}
+</script>
+
+</body>
+</html>
