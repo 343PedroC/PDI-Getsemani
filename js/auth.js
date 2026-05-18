@@ -1,59 +1,53 @@
 async function login(email, password) {
-    const response = await fetch('../data/usuarios.json');
-    const usuariosBase = await response.json();
+    try {
+        const res = await fetch(`api/login.php`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+        });
 
-    let usuariosLocal = JSON.parse(localStorage.getItem('usuarios')) || [];
+        const data = await res.json();
 
-    const todosUsuarios = [...usuariosBase, ...usuariosLocal];
+        if (!res.ok) {
+            alert(data.error || "Credenciales incorrectas");
+            return;
+        }
 
-    const usuario = todosUsuarios.find(u => 
-        u.email === email && u.password === password
-    );
-
-    if (usuario) {
-        localStorage.setItem('usuarioActivo', JSON.stringify(usuario));
-        alert("Login exitoso");
+        localStorage.setItem("usuarioActivo", JSON.stringify(data.usuario));
+        alert("¡Bienvenido, " + data.usuario.nombre + "!");
         window.location.href = "../mapa.html";
-    } else {
-        alert("Credenciales incorrectas");
+
+    } catch (e) {
+        alert("Error de conexión con el servidor");
+        console.error(e);
     }
 }
 
 async function registrar(nombre, apellidos, email, password) {
-    // obtener usuarios existentes del JSON
-    const response = await fetch('../data/usuarios.json');
-    const usuariosBase = await response.json();
+    try {
+        const res = await fetch(`api/registrar.php`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nombre, apellidos, email, password })
+        });
 
-    // obtener usuarios guardados en localStorage
-    let usuariosLocal = JSON.parse(localStorage.getItem('usuarios')) || [];
+        const data = await res.json();
 
-    // combinar ambos
-    const todosUsuarios = [...usuariosBase, ...usuariosLocal];
+        if (!res.ok) {
+            alert(data.error || "Error al registrar");
+            return;
+        }
 
-    // validar si ya existe
-    const existe = todosUsuarios.find(u => u.email === email);
+        alert("Registro exitoso. Inicia sesión.");
+        window.location.href = "login.html";
 
-    if (existe) {
-        alert("El usuario ya existe");
-        return;
+    } catch (e) {
+        alert("Error de conexión con el servidor");
+        console.error(e);
     }
+}
 
-    // crear nuevo usuario
-    const nuevoUsuario = {
-        id: Date.now(),
-        nombre,
-        apellidos,
-        email,
-        password
-    };
-
-    usuariosLocal.push(nuevoUsuario);
-
-    // guardar en localStorage
-    localStorage.setItem('usuarios', JSON.stringify(usuariosLocal));
-
-    alert("Registro exitoso");
-
-    // redirigir al login
-    window.location.href = "login.html";
+function cerrarSesion() {
+    localStorage.removeItem("usuarioActivo");
+    window.location.href = "../mapa.html";
 }
