@@ -57,13 +57,14 @@ try {
         }
     }
 
-    $hash = password_hash($password, PASSWORD_BCRYPT);
+    //$hash = password_hash($password, PASSWORD_BCRYPT); eso era para encriptacion. Este proyecto no estan profesional.
+    //Dejado como comentario para un futuro
 
     $stmt = $pdo->prepare("
         INSERT INTO usuario_cliente (nombre, apellidos, email, password)
         VALUES (?, ?, ?, ?)
     ");
-    $stmt->execute([$nombre, $apellidos, $email, $hash]);
+    $stmt->execute([$nombre, $apellidos, $email, $password]); //$hash en el ultimo campo
 
     echo json_encode(["ok" => true, "mensaje" => "Registro exitoso"]);
 

@@ -1,4 +1,4 @@
-const API = "api";
+const API = "api"; //constante api para el archivo main.js
 
 // ── MAPA ─────────────────────────────────────────────────────────────────────
 const mapa = L.map("mapa").setView([10.421068, -75.546222], 16);

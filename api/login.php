@@ -34,8 +34,10 @@ try {
         $stmt = $pdo->prepare("SELECT * FROM $tabla WHERE email = ?");
         $stmt->execute([$email]);
         $fila = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($fila && password_verify($password, $fila["password"])) {
+        
+        //antiguamente tenia: ($fila && password_verify($password, $fila["password"]))
+        //Eso era encriptación. No se usara en este proyecto
+        if ($fila && $password === $fila["password"]) {
             $usuario = $fila;
             $rol = $tabla; // "usuario_cliente" | "usuario_admin" | "usuario_vendedor"
             break;

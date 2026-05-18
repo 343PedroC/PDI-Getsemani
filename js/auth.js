@@ -1,6 +1,8 @@
+const api = "/PDI_Getsemani/api" ; //constante api para el archivo auth.js
+
 async function login(email, password) {
     try {
-        const res = await fetch(`api/login.php`, {
+        const res = await fetch(`${api}/login.php`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password })
@@ -25,7 +27,7 @@ async function login(email, password) {
 
 async function registrar(nombre, apellidos, email, password) {
     try {
-        const res = await fetch(`api/registrar.php`, {
+        const res = await fetch(`${api}/registrar.php`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ nombre, apellidos, email, password })
