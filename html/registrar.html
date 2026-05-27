@@ -16,6 +16,9 @@
             --accent-h:  #2c506b;
             --border:    #e0dbd2;
             --shadow:    0 8px 32px rgba(26,26,46,0.10);
+            --vendor-bg: #f0f7f0;
+            --vendor:    #2e7d52;
+            --vendor-h:  #1f5c3a;
         }
 
         body {
@@ -43,10 +46,15 @@
             border-radius: 16px;
             padding: 44px 40px 36px;
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
             box-shadow: var(--shadow);
             border: 1px solid var(--border);
             animation: rise 0.4s ease both;
+            transition: border-color 0.3s;
+        }
+
+        .card.modo-vendedor {
+            border-color: #b2d8c0;
         }
 
         @keyframes rise {
@@ -56,7 +64,7 @@
 
         .brand {
             text-align: center;
-            margin-bottom: 32px;
+            margin-bottom: 28px;
         }
 
         .brand-icon {
@@ -69,7 +77,10 @@
             justify-content: center;
             font-size: 22px;
             margin-bottom: 14px;
+            transition: background 0.3s;
         }
+
+        .card.modo-vendedor .brand-icon { background: var(--vendor); }
 
         .brand h1 {
             font-family: 'Playfair Display', serif;
@@ -84,15 +95,68 @@
             margin-top: 4px;
         }
 
+        /* ── Toggle de tipo de cuenta ── */
+        .tipo-cuenta {
+            display: flex;
+            background: #f0ede8;
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 24px;
+            gap: 4px;
+        }
+
+        .tipo-cuenta button {
+            flex: 1;
+            padding: 9px 12px;
+            border: none;
+            border-radius: 7px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            background: transparent;
+            color: var(--muted);
+            transition: all 0.2s;
+        }
+
+        .tipo-cuenta button.activo {
+            background: #fff;
+            color: var(--ink);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+        }
+
+        .tipo-cuenta button.activo.vendor-tab {
+            color: var(--vendor);
+        }
+
+        /* Badge de vendedor */
+        .badge-vendedor {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            background: var(--vendor-bg);
+            border: 1px solid #b2d8c0;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: var(--vendor);
+            margin-bottom: 20px;
+        }
+
+        .badge-vendedor.visible { display: flex; }
+
+        /* Campo apellidos (oculto para vendedor) */
+        #campo-apellidos {
+            transition: opacity 0.2s;
+        }
+
         .row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 14px;
         }
 
-        .field {
-            margin-bottom: 18px;
-        }
+        .field { margin-bottom: 18px; }
 
         label {
             display: block;
@@ -122,6 +186,11 @@
             background: #fff;
         }
 
+        .card.modo-vendedor input:focus {
+            border-color: var(--vendor);
+            box-shadow: 0 0 0 3px rgba(46,125,82,0.12);
+        }
+
         .btn-primary {
             width: 100%;
             padding: 13px;
@@ -140,6 +209,9 @@
         .btn-primary:hover  { background: var(--accent-h); }
         .btn-primary:active { transform: scale(0.98); }
 
+        .card.modo-vendedor .btn-primary            { background: var(--vendor); }
+        .card.modo-vendedor .btn-primary:hover      { background: var(--vendor-h); }
+
         .divider {
             display: flex;
             align-items: center;
@@ -147,30 +219,11 @@
             margin: 24px 0 20px;
         }
 
-        .divider span {
-            flex: 1;
-            height: 1px;
-            background: var(--border);
-        }
+        .divider span { flex: 1; height: 1px; background: var(--border); }
+        .divider p    { font-size: 12px; color: var(--muted); white-space: nowrap; }
 
-        .divider p {
-            font-size: 12px;
-            color: var(--muted);
-            white-space: nowrap;
-        }
-
-        .footer-links {
-            text-align: center;
-            font-size: 14px;
-            color: var(--muted);
-        }
-
-        .footer-links a {
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: 500;
-        }
-
+        .footer-links { text-align: center; font-size: 14px; color: var(--muted); }
+        .footer-links a { color: var(--accent); text-decoration: none; font-weight: 500; }
         .footer-links a:hover { text-decoration: underline; }
 
         .back-link {
@@ -188,11 +241,22 @@
 </head>
 <body>
 
-<div class="card">
+<div class="card" id="card">
     <div class="brand">
-        <div class="brand-icon">🗺️</div>
+        <div class="brand-icon" id="brand-icon">🗺️</div>
         <h1>Crear cuenta</h1>
-        <p>Únete y comparte tu experiencia en Getsemaní</p>
+        <p id="brand-desc">Únete y comparte tu experiencia en Getsemaní</p>
+    </div>
+
+    <!-- Toggle cliente / vendedor -->
+    <div class="tipo-cuenta">
+        <button class="activo" id="tab-cliente" onclick="setModo(false)">👤 Cliente</button>
+        <button class="vendor-tab" id="tab-vendedor" onclick="setModo(true)">🏪 Vendedor</button>
+    </div>
+
+    <!-- Aviso cuando es vendedor -->
+    <div class="badge-vendedor" id="badge-vendedor">
+        🏪 <span>Tu cuenta se registrará como <strong>vendedor</strong> y podrá gestionar puntos de interés.</span>
     </div>
 
     <form onsubmit="event.preventDefault(); registrarUsuario();">
@@ -201,9 +265,9 @@
                 <label for="nombre">Nombre(s)</label>
                 <input type="text" id="nombre" placeholder="Juan" required>
             </div>
-            <div class="field">
+            <div class="field" id="campo-apellidos">
                 <label for="apellidos">Apellidos</label>
-                <input type="text" id="apellidos" placeholder="Pérez" required>
+                <input type="text" id="apellidos" placeholder="Pérez">
             </div>
         </div>
         <div class="field">
@@ -214,7 +278,7 @@
             <label for="password">Contraseña</label>
             <input type="password" id="password" placeholder="Mínimo 6 caracteres" required>
         </div>
-        <button class="btn-primary" type="submit">Crear cuenta</button>
+        <button class="btn-primary" type="submit" id="btn-submit">Crear cuenta</button>
     </form>
 
     <div class="divider">
@@ -230,13 +294,51 @@
 
 <script src="../js/auth.js"></script>
 <script>
-function registrarUsuario() {
-    const nombre    = document.getElementById('nombre').value;
-    const apellidos = document.getElementById('apellidos').value;
-    const email     = document.getElementById('email').value;
-    const password  = document.getElementById('password').value;
-    registrar(nombre, apellidos, email, password);
-}
+    let esVendedor = false;
+
+    function setModo(vendedor) {
+        esVendedor = vendedor;
+
+        const card       = document.getElementById('card');
+        const tabCliente = document.getElementById('tab-cliente');
+        const tabVendedor= document.getElementById('tab-vendedor');
+        const badge      = document.getElementById('badge-vendedor');
+        const campoApe   = document.getElementById('campo-apellidos');
+        const brandIcon  = document.getElementById('brand-icon');
+        const brandDesc  = document.getElementById('brand-desc');
+        const btnSubmit  = document.getElementById('btn-submit');
+
+        if (vendedor) {
+            card.classList.add('modo-vendedor');
+            tabVendedor.classList.add('activo');
+            tabCliente.classList.remove('activo');
+            badge.classList.add('visible');
+            campoApe.style.opacity = '0.4';
+            campoApe.style.pointerEvents = 'none';
+            document.getElementById('apellidos').value = '';
+            brandIcon.textContent = '🏪';
+            brandDesc.textContent = 'Registra tu negocio en Getsemaní';
+            btnSubmit.textContent = 'Crear cuenta de vendedor';
+        } else {
+            card.classList.remove('modo-vendedor');
+            tabCliente.classList.add('activo');
+            tabVendedor.classList.remove('activo');
+            badge.classList.remove('visible');
+            campoApe.style.opacity = '1';
+            campoApe.style.pointerEvents = 'auto';
+            brandIcon.textContent = '🗺️';
+            brandDesc.textContent = 'Únete y comparte tu experiencia en Getsemaní';
+            btnSubmit.textContent = 'Crear cuenta';
+        }
+    }
+
+    function registrarUsuario() {
+        const nombre    = document.getElementById('nombre').value;
+        const apellidos = document.getElementById('apellidos').value;
+        const email     = document.getElementById('email').value;
+        const password  = document.getElementById('password').value;
+        registrar(nombre, apellidos, email, password, esVendedor);
+    }
 </script>
 </body>
 </html>
