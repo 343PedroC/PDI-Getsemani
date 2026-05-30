@@ -155,3 +155,32 @@ h1 {
 .leaflet-popup-content p {
     margin: 5px 0;
 }
+
+/* ── BARRA DE BÚSQUEDA  */
+.search-control {
+    background: white;
+    border-radius: 8px;
+    padding: 8px 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.22);
+    min-width: 250px;
+    margin: 2px 0 0 2px;
+}
+.search-wrapper { display: flex; align-items: center; gap: 8px; }
+.search-icon { width: 16px; height: 16px; flex-shrink: 0; color: #95a5a6; }
+#search-input {
+    flex: 1; border: none; outline: none;
+    font-size: 13.5px; font-family: Arial, sans-serif;
+    color: #2c3e50; background: transparent; padding: 2px 0; min-width: 0;
+}
+#search-input::placeholder { color: #bdc3c7; }
+.search-clear {
+    background: none; border: none; cursor: pointer;
+    font-size: 12px; color: #bdc3c7; padding: 0 2px;
+    flex-shrink: 0; transition: color 0.2s;
+}
+.search-clear:hover { color: #7f8c8d; }
+.search-message {
+    display: none; margin-top: 7px; padding: 6px 8px;
+    background: #fef0f0; border-left: 3px solid #e74c3c;
+    border-radius: 0 4px 4px 0; font-size: 12px; color: #c0392b; line-height: 1.4;
+}

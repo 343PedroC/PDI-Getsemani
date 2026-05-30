@@ -38,7 +38,7 @@ CREATE TABLE usuario_vendedor (
 CREATE TABLE pdi (
     id_pdi       INT AUTO_INCREMENT PRIMARY KEY,
     nombre       VARCHAR(100) NOT NULL,
-    categoria    VARCHAR(50),         -- Comercio, Patrimonio, etc. Proximamente las categorias por comcercio
+    categoria    VARCHAR(50),         
     descripcion  VARCHAR(500),
     direccion    VARCHAR(200),
     latitud      DECIMAL(10,8) NOT NULL,

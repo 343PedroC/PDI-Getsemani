@@ -1,7 +1,10 @@
 const API = "api"; //constante api para el archivo main.js
 
 // ── MAPA ─────────────────────────────────────────────────────────────────────
-const mapa = L.map("mapa").setView([10.421068, -75.546222], 16);
+//const mapa = L.map("mapa").setView([10.421068, -75.546222], 16);
+const mapa = L.map('mapa', { zoomControl: false }).setView([10.421068, -75.546222], 16);
+L.control.zoom({ position: 'topright' }).addTo(mapa);
+
 let marcadores = [];
 
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -25,6 +28,7 @@ function generarEstrellas(n) {
     for (let i = 1; i <= 5; i++) s += i <= n ? "⭐" : "☆";
     return s;
 }
+
 
 // ── POPUP ─────────────────────────────────────────────────────────────────────
 // caché en memoria para no re-pedir al servidor en cada apertura
@@ -129,4 +133,94 @@ if (usuario) {
     btnLogin.addEventListener("click", () => {
         window.location.href = "html/login.html";
     });
+}
+
+// ── BÚSQUEDA ─────────────────────────────────────────────────────────────────
+const BusquedaControl = L.Control.extend({
+    options: { position: 'topleft' },
+    onAdd(map) {
+        const container = L.DomUtil.create('div', 'search-control');
+        container.innerHTML = `
+            <div class="search-wrapper">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <circle cx="11" cy="11" r="7"/>
+                    <line x1="16.5" y1="16.5" x2="22" y2="22"/>
+                </svg>
+                <input type="text" id="search-input" placeholder="Buscar punto de interés..." autocomplete="off">
+                <button id="search-clear" class="search-clear" title="Limpiar">✕</button>
+            </div>
+            <div id="search-message" class="search-message"></div>
+        `;
+        L.DomEvent.disableClickPropagation(container);
+        L.DomEvent.disableScrollPropagation(container);
+        return container;
+    }
+});
+new BusquedaControl().addTo(mapa);
+
+// Enter → ejecutar búsqueda
+document.addEventListener('keydown', e => {
+    if (e.target?.id === 'search-input' && e.key === 'Enter')
+        buscarPunto(e.target.value.trim());
+});
+
+// ✕ → limpiar búsqueda
+document.addEventListener('click', e => {
+    if (e.target?.id === 'search-clear') {
+        const input = document.getElementById('search-input');
+        if (input) { input.value = ''; input.focus(); }
+        limpiarBusqueda();
+    }
+});
+
+// Al cambiar filtro de categoría, limpiar el input y mensaje
+document.querySelectorAll('.filtros button').forEach(boton => {
+    boton.addEventListener('click', () => {
+        const input = document.getElementById('search-input');
+        const msg   = document.getElementById('search-message');
+        if (input) input.value = '';
+        if (msg)   msg.style.display = 'none';
+    });
+});
+
+function buscarPunto(query) {
+    const msg = document.getElementById('search-message');
+    if (!query) { limpiarBusqueda(); return; }
+
+    const ql = query.toLowerCase();
+
+    //Busqueda primero por categoria, sino encuentra busca por nombre
+    let encontrados = marcadores.filter(item =>
+        item.punto.categoria.toLowerCase().includes(ql)
+    );
+    if (encontrados.length === 0) {
+        encontrados = marcadores.filter(item =>
+            item.punto.nombre.toLowerCase().includes(ql)
+        );
+    }
+
+    // Ocultar todos los marcadores actuales
+    marcadores.forEach(item => mapa.removeLayer(item.marcador));
+
+    if (encontrados.length === 0) {
+        msg.innerHTML = `<span>⚠️ Sin resultados para <strong>"${query}"</strong>.</span>`;
+        msg.style.display = 'block';
+    } else {
+        encontrados.forEach(item => item.marcador.addTo(mapa));
+        msg.style.display = 'none';
+        if (encontrados.length === 1) {
+            const { marcador, punto } = encontrados[0];
+            mapa.setView([punto.latitud, punto.longitud], 18);
+            marcador.openPopup();
+        } else {
+            const grupo = L.featureGroup(encontrados.map(i => i.marcador));
+            mapa.fitBounds(grupo.getBounds().pad(0.3));
+        }
+    }
+}
+
+function limpiarBusqueda() {
+    const msg = document.getElementById('search-message');
+    if (msg) msg.style.display = 'none';
+    marcadores.forEach(item => item.marcador.addTo(mapa));
 }
