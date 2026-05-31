@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Promoción · Getsemaní</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Nunito', Arial, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            padding: 28px 16px 52px;
+        }
+
+        .page-wrap {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        /* ── Encabezado ── */
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13.5px;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+
+        .back-link:hover { text-decoration: underline; }
+
+        .page-header h1 {
+            font-size: 26px;
+            font-weight: 800;
+            color: #2c3e50;
+            margin-bottom: 4px;
+            letter-spacing: -0.3px;
+        }
+
+        .page-header p {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        /* ── Tarjeta genérica ── */
+        .card {
+            background: #fff;
+            border-radius: 14px;
+            border: 1.5px solid #e3e8ee;
+            box-shadow: 0 3px 16px rgba(44, 62, 80, 0.09);
+            overflow: hidden;
+            margin-bottom: 22px;
+            animation: rise 0.3s ease both;
+        }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-header {
+            padding: 16px 22px;
+            border-bottom: 1.5px solid #edf0f3;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .card-header h2 {
+            font-size: 16px;
+            font-weight: 800;
+            color: #2c3e50;
+        }
+
+        .card-header .badge-count {
+            background: #eaf4fb;
+            color: #2471a3;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 2px 9px;
+            border-radius: 20px;
+            margin-left: auto;
+        }
+
+        .card-body {
+            padding: 20px 22px;
+        }
+
+        /* ── Tabla de mis puntos ── */
+        .pois-table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+        }
+
+        thead tr {
+            background: #f8f9fb;
+        }
+
+        thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            color: #95a5a6;
+            border-bottom: 1.5px solid #e8ecf0;
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #f0f3f6;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        tbody tr:last-child { border-bottom: none; }
+
+        tbody tr:hover {
+            background: #eaf4fb;
+        }
+
+        tbody tr.fila-seleccionada {
+            background: #d6eaf8;
+            outline: 2px solid #3498db;
+            outline-offset: -2px;
+        }
+
+        tbody td {
+            padding: 11px 14px;
+            color: #34495e;
+            vertical-align: middle;
+        }
+
+        .td-id {
+            font-weight: 800;
+            color: #3498db;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .td-nombre { font-weight: 700; color: #2c3e50; }
+
+        .badge-cat {
+            display: inline-block;
+            background: #f0f3f6;
+            color: #5d7a8c;
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 12px;
+            white-space: nowrap;
+        }
+
+        .td-sel {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .pill-sel {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #27ae60;
+            background: #eafaf1;
+            border: 1px solid #a9dfbf;
+            border-radius: 20px;
+            padding: 3px 10px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .fila-seleccionada .pill-sel { opacity: 1; }
+
+        /* Info de selección vacía */
+        .hint-seleccion {
+            text-align: center;
+            padding: 30px 20px;
+            color: #95a5a6;
+            font-size: 13.5px;
+        }
+
+        /* Spinner tabla */
+        .spinner-tabla {
+            text-align: center;
+            padding: 30px;
+            color: #95a5a6;
+            font-size: 14px;
+        }
+
+        .mini-spinner {
+            width: 28px;
+            height: 28px;
+            border: 3px solid #e8ecf0;
+            border-top-color: #3498db;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Formulario ── */
+        .form-group { margin-bottom: 18px; }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 7px;
+            letter-spacing: 0.1px;
+        }
+
+        .form-group label span.req { color: #e74c3c; margin-left: 2px; }
+
+        .punto-seleccionado-display {
+            background: #f0f7ff;
+            border: 1.5px solid #bee3f8;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13.5px;
+            color: #2471a3;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 42px;
+        }
+
+        .punto-seleccionado-display.vacio {
+            color: #bdc3c7;
+            font-weight: 600;
+            font-style: italic;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="datetime-local"],
+        textarea {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1.5px solid #dde3e8;
+            border-radius: 8px;
+            font-family: 'Nunito', Arial, sans-serif;
+            font-size: 14px;
+            color: #2c3e50;
+            background: #fafbfc;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.12);
+            background: #fff;
+        }
+
+        input.input-error {
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.10);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 110px;
+        }
+
+        .char-counter {
+            text-align: right;
+            font-size: 12px;
+            color: #95a5a6;
+            margin-top: 5px;
+        }
+
+        .char-counter.near-limit { color: #e67e22; }
+        .char-counter.at-limit   { color: #e74c3c; }
+
+        .row-dates {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 480px) {
+            .row-dates { grid-template-columns: 1fr; }
+        }
+
+        .form-error {
+            display: none;
+            background: #fef0f0;
+            border: 1px solid #f5b7b1;
+            border-radius: 8px;
+            padding: 12px 14px;
+            font-size: 13.5px;
+            color: #c0392b;
+            margin-bottom: 16px;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-error.visible {
+            display: flex;
+        }
+
+        /* ── Botón submit ── */
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: #27ae60;
+            color: #fff;
+            border: none;
+            border-radius: 9px;
+            font-family: 'Nunito', Arial, sans-serif;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            letter-spacing: 0.2px;
+        }
+
+        .btn-submit:hover  { background: #219a52; }
+        .btn-submit:active { transform: scale(0.98); }
+        .btn-submit:disabled {
+            background: #a9dfbf;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ── Estado de éxito ── */
+        #state-success {
+            display: none;
+        }
+
+        .success-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 50px 28px;
+            text-align: center;
+            border: 1.5px solid #a9dfbf;
+            box-shadow: 0 3px 16px rgba(39, 174, 96, 0.10);
+            animation: rise 0.35s ease both;
+        }
+
+        .success-emoji {
+            font-size: 52px;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .success-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #1e8449;
+            margin-bottom: 8px;
+        }
+
+        .success-desc {
+            font-size: 14px;
+            color: #7f8c8d;
+            line-height: 1.65;
+            margin-bottom: 28px;
+        }
+
+        .success-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-success-primary {
+            padding: 12px 22px;
+            background: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Nunito', Arial, sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+
+        .btn-success-primary:hover { background: #2980b9; }
+
+        .btn-success-secondary {
+            padding: 12px 22px;
+            background: #fff;
+            color: #27ae60;
+            border: 2px solid #27ae60;
+            border-radius: 8px;
+            font-family: 'Nunito', Arial, sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+
+        .btn-success-secondary:hover { background: #eafaf1; }
+    </style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+    <!-- ── Encabezado ── -->
+    <div class="page-header">
+        <a href="../mapa.html" class="back-link">← Volver al mapa</a>
+        <h1>🏪 Crear Promoción</h1>
+        <p>Publica ofertas para los locales que administras</p>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         ESTADO: FORMULARIO
+    ══════════════════════════════════════════════════════════ -->
+    <div id="state-form">
+
+        <!-- ── Tarjeta 1: Mis Puntos de Interés ── -->
+        <div class="card">
+            <div class="card-header">
+                <span>📋</span>
+                <h2>Mis Puntos de Interés</h2>
+                <span class="badge-count" id="badge-total">cargando...</span>
+            </div>
+            <div class="card-body" style="padding: 0;">
+
+                <div id="tabla-loading" class="spinner-tabla">
+                    <div class="mini-spinner"></div>
+                    Cargando tus puntos...
+                </div>
+
+                <div id="tabla-vacia" class="hint-seleccion" style="display:none;">
+                    No tienes puntos de interés asociados a tu cuenta.
+                </div>
+
+                <div id="tabla-wrap" class="pois-table-wrap" style="display:none;">
+                    <table id="tabla-pois">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre del punto</th>
+                                <th>Categoría</th>
+                                <th>Dirección</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-pois"></tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div><!-- /card mis puntos -->
+
+        <!-- ── Tarjeta 2: Formulario de promoción ── -->
+        <div class="card">
+            <div class="card-header">
+                <span>✨</span>
+                <h2>Datos de la Promoción</h2>
+            </div>
+            <div class="card-body">
+
+                <!-- Error inline -->
+                <div class="form-error" id="form-error">
+                    <span>⚠️</span>
+                    <span id="form-error-msg">Error desconocido.</span>
+                </div>
+
+                <!-- Punto seleccionado (lectura) -->
+                <div class="form-group">
+                    <label>Punto asociado <span class="req">*</span></label>
+                    <div class="punto-seleccionado-display vacio" id="display-punto">
+                        📍 Selecciona un punto de la tabla de arriba
+                    </div>
+                    <!-- Campo oculto que guarda el id_pdi elegido -->
+                    <input type="hidden" id="id_pdi_seleccionado">
+                </div>
+
+                <!-- Nombre de la promo -->
+                <div class="form-group">
+                    <label for="promo-nombre">Nombre de la promoción <span class="req">*</span></label>
+                    <input type="text" id="promo-nombre" maxlength="100"
+                           placeholder="Ej: 2x1 en corrientazos, 20% en bebidas…">
+                </div>
+
+                <!-- Descripción / información -->
+                <div class="form-group">
+                    <label for="promo-info">Descripción <span class="req">*</span>
+                        <span style="font-weight:400; color:#95a5a6; font-size:12px;">
+                            (precio, condiciones, horarios…)
+                        </span>
+                    </label>
+                    <textarea id="promo-info" maxlength="500"
+                              placeholder="Describe la oferta: qué incluye, precio, días y horario válido…"></textarea>
+                    <p class="char-counter" id="counter-info">0 / 500</p>
+                </div>
+
+                <!-- Fechas -->
+                <div class="row-dates">
+                    <div class="form-group">
+                        <label for="fecha-inicio">Fecha de inicio <span class="req">*</span></label>
+                        <input type="datetime-local" id="fecha-inicio">
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha-fin">Fecha de fin <span class="req">*</span></label>
+                        <input type="datetime-local" id="fecha-fin">
+                    </div>
+                </div>
+
+                <button class="btn-submit" id="btn-publicar" onclick="publicarPromocion()">
+                    🚀 Publicar Promoción
+                </button>
+
+            </div>
+        </div><!-- /card formulario -->
+
+    </div><!-- /state-form -->
+
+    <!-- ══════════════════════════════════════════════════════════
+         ESTADO: ÉXITO
+    ══════════════════════════════════════════════════════════ -->
+    <div id="state-success">
+        <div class="success-card">
+            <span class="success-emoji">🎉</span>
+            <p class="success-title">¡Promoción publicada!</p>
+            <p class="success-desc" id="success-desc">
+                Tu promoción ya está activa en el mapa.<br>
+                Los visitantes podrán verla al hacer clic en tu local.
+            </p>
+            <div class="success-actions">
+                <a id="btn-ver-promo" href="#" class="btn-success-primary">
+                    🏷️ Ver mi promoción
+                </a>
+                <button class="btn-success-secondary" onclick="crearOtra()">
+                    ➕ Crear otra
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /page-wrap -->
+
+<script>
+    // ── Guardia de acceso: solo vendedores ────────────────────────────────────
+    const usuario = JSON.parse(localStorage.getItem("usuarioActivo"));
+    if (!usuario || usuario.rol !== "usuario_vendedor") {
+        window.location.href = "../mapa.html";
+    }
+
+    // ── Estado: fila seleccionada ─────────────────────────────────────────────
+    let filaActiva = null;
+    let idPdiActivo = null;
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+    function mostrarError(msg) {
+        const el  = document.getElementById('form-error');
+        const msg2 = document.getElementById('form-error-msg');
+        msg2.textContent = msg;
+        el.classList.add('visible');
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function ocultarError() {
+        document.getElementById('form-error').classList.remove('visible');
+    }
+
+    function show(id) { document.getElementById(id).style.display = 'block'; }
+    function hide(id) { document.getElementById(id).style.display = 'none';  }
+
+    // ── Fechas mínimas ────────────────────────────────────────────────────────
+    function inicializarFechas() {
+        const now      = new Date();
+        const offset   = now.getTimezoneOffset() * 60000;
+        const local    = new Date(now - offset).toISOString().slice(0, 16);
+
+        const inputIni = document.getElementById('fecha-inicio');
+        const inputFin = document.getElementById('fecha-fin');
+
+        inputIni.min = local;
+        inputFin.min = local;
+
+        // Al cambiar fecha inicio, ajustar mínimo de fin
+        inputIni.addEventListener('change', () => {
+            if (inputIni.value) inputFin.min = inputIni.value;
+        });
+    }
+
+    // ── Contador de caracteres ────────────────────────────────────────────────
+    document.getElementById('promo-info').addEventListener('input', function () {
+        const len     = this.value.length;
+        const counter = document.getElementById('counter-info');
+        counter.textContent = `${len} / 500`;
+        counter.className   = 'char-counter' +
+            (len >= 500 ? ' at-limit' : len >= 420 ? ' near-limit' : '');
+    });
+
+    // ── Seleccionar fila de la tabla ──────────────────────────────────────────
+    function seleccionarFila(tr, id_pdi, nombre) {
+        // Quitar selección previa
+        if (filaActiva) filaActiva.classList.remove('fila-seleccionada');
+
+        filaActiva   = tr;
+        idPdiActivo  = id_pdi;
+        tr.classList.add('fila-seleccionada');
+
+        // Actualizar display en el formulario
+        const display = document.getElementById('display-punto');
+        display.classList.remove('vacio');
+        display.textContent = `📍 ${nombre}  (ID: ${id_pdi})`;
+        document.getElementById('id_pdi_seleccionado').value = id_pdi;
+
+        // Hacer scroll suave hacia el formulario
+        document.getElementById('promo-nombre').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        ocultarError();
+    }
+
+    // ── Cargar mis puntos ─────────────────────────────────────────────────────
+    async function cargarMisPOIs() {
+        try {
+            const res  = await fetch(`../api/mis_pois.php?id_vendedor=${usuario.id_vendedor}`);
+            const pois = await res.json();
+
+            hide('tabla-loading');
+
+            if (!pois || pois.length === 0) {
+                show('tabla-vacia');
+                document.getElementById('badge-total').textContent = '0 puntos';
+                return;
+            }
+
+            document.getElementById('badge-total').textContent =
+                `${pois.length} punto${pois.length > 1 ? 's' : ''}`;
+
+            const tbody = document.getElementById('tbody-pois');
+            tbody.innerHTML = '';
+
+            pois.forEach(poi => {
+                const tr = document.createElement('tr');
+                tr.title = 'Clic para seleccionar este punto';
+                tr.innerHTML = `
+                    <td class="td-id">#${poi.id_pdi}</td>
+                    <td class="td-nombre">${poi.nombre}</td>
+                    <td><span class="badge-cat">${poi.categoria || '—'}</span></td>
+                    <td style="color:#7f8c8d; font-size:13px;">${poi.direccion || '—'}</td>
+                    <td class="td-sel"><span class="pill-sel">✓ Seleccionado</span></td>
+                `;
+                tr.addEventListener('click', () =>
+                    seleccionarFila(tr, poi.id_pdi, poi.nombre)
+                );
+                tbody.appendChild(tr);
+            });
+
+            show('tabla-wrap');
+
+        } catch (e) {
+            hide('tabla-loading');
+            document.getElementById('badge-total').textContent = 'error';
+            console.error('Error cargando mis POIs:', e);
+        }
+    }
+
+    // ── Publicar promoción ────────────────────────────────────────────────────
+    async function publicarPromocion() {
+        ocultarError();
+
+        const id_pdi      = parseInt(document.getElementById('id_pdi_seleccionado').value) || 0;
+        const nombre      = document.getElementById('promo-nombre').value.trim();
+        const informacion = document.getElementById('promo-info').value.trim();
+        const fechaIni    = document.getElementById('fecha-inicio').value;
+        const fechaFin    = document.getElementById('fecha-fin').value;
+
+        // Validaciones en cliente
+        if (!id_pdi) {
+            mostrarError('Debes seleccionar un punto de la tabla.');
+            return;
+        }
+        if (!nombre) {
+            mostrarError('El nombre de la promoción no puede estar vacío.');
+            document.getElementById('promo-nombre').focus();
+            return;
+        }
+        if (!fechaIni) {
+            mostrarError('Indica la fecha de inicio de la promoción.');
+            return;
+        }
+        if (!fechaFin) {
+            mostrarError('Indica la fecha de fin de la promoción.');
+            return;
+        }
+        if (new Date(fechaFin) <= new Date(fechaIni)) {
+            mostrarError('La fecha de fin debe ser posterior a la de inicio.');
+            return;
+        }
+
+        // Convertir datetime-local → formato MySQL ("YYYY-MM-DD HH:MM:SS")
+        const toMySQL = str => str.replace('T', ' ') + ':00';
+
+        const btn = document.getElementById('btn-publicar');
+        btn.disabled     = true;
+        btn.textContent  = '⏳ Publicando...';
+
+        try {
+            const res  = await fetch('../api/crear_promocion.php', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id_pdi,
+                    nombre,
+                    informacion,
+                    fecha_inicio: toMySQL(fechaIni),
+                    fecha_fin:    toMySQL(fechaFin),
+                    id_vendedor:  usuario.id_vendedor
+                })
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                mostrarError(data.error || 'Error al publicar la promoción.');
+                btn.disabled    = false;
+                btn.textContent = '🚀 Publicar Promoción';
+                return;
+            }
+
+            // ¡Éxito!
+            hide('state-form');
+            document.getElementById('btn-ver-promo').href =
+                `promociones.html?id_pdi=${id_pdi}`;
+            document.getElementById('success-desc').innerHTML =
+                `Tu promoción <strong>"${nombre}"</strong> ya está activa en el mapa.<br>
+                 Los visitantes la verán al hacer clic en tu local.`;
+            show('state-success');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        } catch (e) {
+            console.error(e);
+            mostrarError('Error de conexión con el servidor.');
+            btn.disabled    = false;
+            btn.textContent = '🚀 Publicar Promoción';
+        }
+    }
+
+    // ── Crear otra (resetea todo) ─────────────────────────────────────────────
+    function crearOtra() {
+        // Reset selección
+        if (filaActiva) filaActiva.classList.remove('fila-seleccionada');
+        filaActiva  = null;
+        idPdiActivo = null;
+
+        const display = document.getElementById('display-punto');
+        display.classList.add('vacio');
+        display.textContent = '📍 Selecciona un punto de la tabla de arriba';
+        document.getElementById('id_pdi_seleccionado').value = '';
+
+        // Reset form
+        document.getElementById('promo-nombre').value = '';
+        document.getElementById('promo-info').value   = '';
+        document.getElementById('fecha-inicio').value = '';
+        document.getElementById('fecha-fin').value    = '';
+        document.getElementById('counter-info').textContent = '0 / 500';
+
+        const btn = document.getElementById('btn-publicar');
+        btn.disabled    = false;
+        btn.textContent = '🚀 Publicar Promoción';
+
+        ocultarError();
+        hide('state-success');
+        show('state-form');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ── Init ──────────────────────────────────────────────────────────────────
+    inicializarFechas();
+    cargarMisPOIs();
+</script>
+
+</body>
+</html>

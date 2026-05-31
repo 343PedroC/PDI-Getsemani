@@ -169,6 +169,15 @@ if (usuario) {
     });
 }
 
+// ── BOTÓN VENDEDOR (solo rol usuario_vendedor) ────────────────────────────────
+const btnVendedor = document.getElementById("btn-vendedor");
+if (usuario?.rol === "usuario_vendedor") {
+    btnVendedor.style.display = "block";
+}
+btnVendedor?.addEventListener("click", () => {
+    window.location.href = "html/promocionar.html";
+});
+
 // ── BÚSQUEDA ─────────────────────────────────────────────────────────────────
 const BusquedaControl = L.Control.extend({
     options: { position: 'topleft' },
@@ -263,4 +272,4 @@ function limpiarBusqueda() {
     if (msg) msg.style.display = 'none';
     // Respetar el filtro de promos al limpiar la búsqueda
     aplicarFiltroPromo();
-}   
+}

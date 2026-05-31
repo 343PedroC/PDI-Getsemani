@@ -105,6 +105,29 @@ h1 {
     background-color: #1a5edb;
 }
 
+/* ── Botón flotante para vendedores (esquina inferior izquierda) ── */
+#btn-vendedor {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 50px;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    display: none; /* se muestra solo vía JS si el rol es vendedor */
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+#btn-vendedor:hover {
+    background-color: #219a52;
+}
+
 /* MODAL */
 .modal {
     display: none;
@@ -221,7 +244,7 @@ h1 {
     background: white;
     border-radius: 8px;
     padding: 8px 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.22);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.22);    
     min-width: 250px;
     margin: 2px 0 0 2px;
 }
