@@ -1,11 +1,11 @@
 const API = "api"; //constante api para el archivo main.js
 
 // ── MAPA ─────────────────────────────────────────────────────────────────────
-//const mapa = L.map("mapa").setView([10.421068, -75.546222], 16);
 const mapa = L.map('mapa', { zoomControl: false }).setView([10.421068, -75.546222], 16);
 L.control.zoom({ position: 'topright' }).addTo(mapa);
 
 let marcadores = [];
+let filtroPromoActivo = false;
 
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -13,13 +13,13 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 
 // ── ICONOS ───────────────────────────────────────────────────────────────────
 const iconos = {
-    Restaurante:  L.icon({ iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png" }),
-    Bar:L.icon({ iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png" }),
-    Tienda:  L.icon({ iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png" }),
-    Café:  L.icon({ iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png" }),
-    Hostal: L.icon ({ iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-violet.png" }),
-    Licorería: L.icon ({ iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-black.png" }),
-    default: L.icon({ iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-yellow.png" })
+    Restaurante: L.icon({ iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png" }),
+    Bar:         L.icon({ iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png" }),
+    Tienda:      L.icon({ iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png" }),
+    Café:        L.icon({ iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png" }),
+    Hostal:      L.icon({ iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-violet.png" }),
+    Licorería:   L.icon({ iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-black.png" }),
+    default:     L.icon({ iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-yellow.png" })
 };
 
 // ── ESTRELLAS ─────────────────────────────────────────────────────────────────
@@ -29,21 +29,19 @@ function generarEstrellas(n) {
     return s;
 }
 
-
 // ── POPUP ─────────────────────────────────────────────────────────────────────
 // caché en memoria para no re-pedir al servidor en cada apertura
 const cachePDI = {};
 
 async function construirPopup(punto) {
     let promedio = 0;
-    let total = 0;
+    let total    = 0;
 
-    // Solo pedimos al servidor si no lo tenemos en caché
     if (cachePDI[punto.id_pdi] !== undefined) {
         ({ promedio, total } = cachePDI[punto.id_pdi]);
     } else {
         try {
-            const res = await fetch(`${API}/resenas.php?id_pdi=${punto.id_pdi}`);
+            const res  = await fetch(`${API}/resenas.php?id_pdi=${punto.id_pdi}`);
             const data = await res.json();
             promedio = data.promedio;
             total    = data.total;
@@ -55,6 +53,14 @@ async function construirPopup(punto) {
         ? `${generarEstrellas(Math.round(promedio))} <span style="font-size:12px;color:#777">(${total})</span>`
         : `<span style="color:#aaa;font-size:13px;">Sin calificaciones aún</span>`;
 
+    // Enlace de promoción: solo aparece si el PDI tiene una promo activa
+    const promoHTML = punto.tiene_promo
+        ? `<div class="popup-promo-link">
+               <a href="html/promociones.html?id_pdi=${punto.id_pdi}"
+                  class="btn-promo-enlace">🏷️ ¡Ver promoción activa!</a>
+           </div>`
+        : '';
+
     return `
         <h3>${punto.nombre}</h3>
         <p><b>Tipo:</b> ${punto.categoria}</p>
@@ -64,11 +70,24 @@ async function construirPopup(punto) {
            Lon: ${parseFloat(punto.longitud).toFixed(6)}</p>
         <img src="${punto.foto}" alt="${punto.nombre}">
         <p><strong>Calificación promedio:</strong><br>${calificacionHTML}</p>
+        ${promoHTML}
         <div style="text-align:right;margin-top:10px;">
-            <a href="html/calificar.html?id_pdi=${punto.id_pdi}&nombre=${encodeURIComponent(punto.nombre)}" style="margin-right:10px;">⭐ Calificar</a>
+            <a href="html/calificar.html?id_pdi=${punto.id_pdi}&nombre=${encodeURIComponent(punto.nombre)}"
+               style="margin-right:10px;">⭐ Calificar</a>
             <a href="html/resenas.html?id_pdi=${punto.id_pdi}&nombre=${encodeURIComponent(punto.nombre)}">💬 Reseñas</a>
         </div>
     `;
+}
+
+// ── FILTRO PROMO (client-side) ────────────────────────────────────────────────
+function aplicarFiltroPromo() {
+    marcadores.forEach(item => {
+        if (filtroPromoActivo && !item.punto.tiene_promo) {
+            mapa.removeLayer(item.marcador);
+        } else {
+            item.marcador.addTo(mapa);
+        }
+    });
 }
 
 // ── CARGAR POIs ───────────────────────────────────────────────────────────────
@@ -94,7 +113,6 @@ async function cargarPOIs(categoria = "Todos") {
             marcador.bindPopup("<p style='text-align:center'>Cargando...</p>");
 
             marcador.on("popupopen", async () => {
-                // Invalidamos caché del punto para mostrar datos frescos
                 delete cachePDI[punto.id_pdi];
                 const html = await construirPopup(punto);
                 marcador.getPopup().setContent(html);
@@ -111,11 +129,27 @@ async function cargarPOIs(categoria = "Todos") {
 
 cargarPOIs();
 
-// ── FILTROS ───────────────────────────────────────────────────────────────────
-document.querySelectorAll(".filtros button").forEach(boton => {
+// ── FILTROS DE CATEGORÍA ──────────────────────────────────────────────────────
+// Usar [data-tipo] para excluir el botón de Promociones
+document.querySelectorAll(".filtros button[data-tipo]").forEach(boton => {
     boton.addEventListener("click", () => {
+        // Al seleccionar categoría, se desactiva el filtro de promos
+        filtroPromoActivo = false;
+        document.getElementById('btn-promo-filtro')?.classList.remove('activo');
         cargarPOIs(boton.dataset.tipo);
     });
+});
+
+// ── FILTRO PROMOCIONES ────────────────────────────────────────────────────────
+document.getElementById('btn-promo-filtro')?.addEventListener('click', () => {
+    filtroPromoActivo = !filtroPromoActivo;
+    document.getElementById('btn-promo-filtro').classList.toggle('activo', filtroPromoActivo);
+    aplicarFiltroPromo();
+    // Limpiar búsqueda activa al cambiar filtro
+    const input = document.getElementById('search-input');
+    const msg   = document.getElementById('search-message');
+    if (input) input.value = '';
+    if (msg)   msg.style.display = 'none';
 });
 
 // ── SESIÓN ────────────────────────────────────────────────────────────────────
@@ -173,8 +207,8 @@ document.addEventListener('click', e => {
     }
 });
 
-// Al cambiar filtro de categoría, limpiar el input y mensaje
-document.querySelectorAll('.filtros button').forEach(boton => {
+// Al cambiar filtro de categoría, limpiar el input y mensaje de búsqueda
+document.querySelectorAll('.filtros button[data-tipo]').forEach(boton => {
     boton.addEventListener('click', () => {
         const input = document.getElementById('search-input');
         const msg   = document.getElementById('search-message');
@@ -189,12 +223,17 @@ function buscarPunto(query) {
 
     const ql = query.toLowerCase();
 
-    //Busqueda primero por categoria, sino encuentra busca por nombre
-    let encontrados = marcadores.filter(item =>
+    // Si el filtro de promos está activo, buscar solo dentro de esos marcadores
+    const base = filtroPromoActivo
+        ? marcadores.filter(item => item.punto.tiene_promo)
+        : marcadores;
+
+    // Búsqueda primero por categoría, luego por nombre
+    let encontrados = base.filter(item =>
         item.punto.categoria.toLowerCase().includes(ql)
     );
     if (encontrados.length === 0) {
-        encontrados = marcadores.filter(item =>
+        encontrados = base.filter(item =>
             item.punto.nombre.toLowerCase().includes(ql)
         );
     }
@@ -222,5 +261,6 @@ function buscarPunto(query) {
 function limpiarBusqueda() {
     const msg = document.getElementById('search-message');
     if (msg) msg.style.display = 'none';
-    marcadores.forEach(item => item.marcador.addTo(mapa));
-}
+    // Respetar el filtro de promos al limpiar la búsqueda
+    aplicarFiltroPromo();
+}   

@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promoción · Getsemaní</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Nunito', Arial, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            padding: 28px 16px 48px;
+        }
+
+        .promo-wrap {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ── Encabezado de página ── */
+        .promo-page-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .promo-page-header h1 {
+            font-size: 26px;
+            font-weight: 800;
+            color: #2c3e50;
+            margin-bottom: 4px;
+            letter-spacing: -0.3px;
+        }
+
+        .promo-page-header p {
+            font-size: 13.5px;
+            color: #7f8c8d;
+        }
+
+        /* ── Tarjeta principal ── */
+        .promo-card {
+            background: #fff;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 4px 22px rgba(44, 62, 80, 0.11);
+            border: 1.5px solid #e3e8ee;
+            animation: rise 0.35s ease both;
+        }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Cabecera azul ── */
+        .promo-card-top {
+            background: #3498db;
+            padding: 22px 24px 20px;
+        }
+
+        .badge-oferta {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.22);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.9px;
+            text-transform: uppercase;
+            padding: 4px 11px;
+            border-radius: 20px;
+            margin-bottom: 10px;
+        }
+
+        .promo-nombre {
+            font-size: 26px;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.2;
+            margin-bottom: 12px;
+        }
+
+        .promo-punto-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13.5px;
+            color: rgba(255, 255, 255, 0.92);
+            font-weight: 600;
+        }
+
+        /* ── Cuerpo de la tarjeta ── */
+        .promo-body {
+            padding: 22px 24px 0;
+        }
+
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.9px;
+            color: #95a5a6;
+            margin-bottom: 8px;
+        }
+
+        .promo-desc {
+            font-size: 14.5px;
+            color: #34495e;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            white-space: pre-line;
+        }
+
+        /* ── Pastilla de vigencia ── */
+        .vigencia-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #eafaf1;
+            color: #1e8449;
+            border: 1px solid #a9dfbf;
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 22px;
+        }
+
+        /* ── Separador ── */
+        .promo-divider {
+            border: none;
+            border-top: 1px solid #ecf0f1;
+            margin: 0;
+        }
+
+        /* ── Bloque de T&C ── */
+        .tc-block {
+            margin: 20px 24px;
+            background: #f0f7ff;
+            border: 1px solid #bee3f8;
+            border-radius: 10px;
+            padding: 15px 18px;
+        }
+
+        .tc-title {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #2471a3;
+            margin-bottom: 9px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tc-list {
+            margin: 0;
+            padding: 0 0 0 18px;
+            font-size: 13px;
+            color: #5d7a8c;
+            line-height: 1.8;
+        }
+
+        .tc-list li::marker {
+            color: #85c1e9;
+        }
+
+        /* ── Botones de acción ── */
+        .promo-footer {
+            padding: 0 24px 24px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-primary-promo {
+            flex: 1;
+            padding: 13px;
+            background: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .btn-primary-promo:hover {
+            background: #2980b9;
+        }
+
+        .btn-secondary-promo {
+            padding: 13px 18px;
+            background: #fff;
+            color: #7f8c8d;
+            border: 1.5px solid #dde3e8;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .btn-secondary-promo:hover {
+            background: #f4f6f8;
+        }
+
+        /* ── Link volver ── */
+        .nav-back {
+            text-align: center;
+            margin-top: 22px;
+        }
+
+        .nav-back a {
+            font-size: 13.5px;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .nav-back a:hover {
+            text-decoration: underline;
+        }
+
+        /* ── Estados: cargando / error ── */
+        .state-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 52px 24px;
+            text-align: center;
+            box-shadow: 0 4px 22px rgba(44, 62, 80, 0.09);
+        }
+
+        .state-emoji {
+            font-size: 44px;
+            margin-bottom: 14px;
+            display: block;
+        }
+
+        .state-title {
+            font-size: 19px;
+            font-weight: 800;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .state-desc {
+            font-size: 14px;
+            color: #7f8c8d;
+            line-height: 1.65;
+        }
+
+        /* Spinner */
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .spinner {
+            width: 38px;
+            height: 38px;
+            border: 3px solid #e8ecf0;
+            border-top-color: #3498db;
+            border-radius: 50%;
+            animation: spin 0.75s linear infinite;
+            margin: 0 auto 18px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="promo-wrap">
+
+    <!-- ── Estado: cargando ── -->
+    <div id="state-loading">
+        <div class="promo-page-header">
+            <h1>🏷️ Promociones</h1>
+            <p>Descubre las mejores ofertas del barrio</p>
+        </div>
+        <div class="state-card">
+            <div class="spinner"></div>
+            <p class="state-desc">Cargando promoción...</p>
+        </div>
+    </div>
+
+    <!-- ── Estado: contenido ── -->
+    <div id="state-content" style="display:none;">
+        <div class="promo-page-header">
+            <h1>🏷️ Promociones</h1>
+            <p>Descubre las mejores ofertas del barrio</p>
+        </div>
+
+        <div class="promo-card">
+
+            <!-- Cabecera azul -->
+            <div class="promo-card-top">
+                <span class="badge-oferta">Oferta especial</span>
+                <p class="promo-nombre" id="promo-nombre">—</p>
+                <span class="promo-punto-label">
+                    📍 <span id="promo-pdi-nombre">—</span>
+                </span>
+            </div>
+
+            <!-- Descripción -->
+            <div class="promo-body">
+                <p class="section-label">Descripción</p>
+                <p class="promo-desc" id="promo-desc">—</p>
+
+                <!-- Vigencia -->
+                <span class="vigencia-pill">
+                    📅&nbsp;<span id="promo-fechas">—</span>
+                </span>
+            </div>
+
+            <hr class="promo-divider">
+
+            <!-- Términos y condiciones -->
+            <div class="tc-block">
+                <p class="tc-title">ℹ️ Términos y condiciones</p>
+                <ul class="tc-list">
+                    <li>Válido únicamente en consumo en el lugar (no aplica a domicilios).</li>
+                    <li>No acumulable con otras promociones o descuentos vigentes.</li>
+                    <li>Sujeto a disponibilidad. Válido hasta la fecha indicada arriba.</li>
+                    <li>Presenta esta promoción al momento de ordenar o solicitar el servicio.</li>
+                    <li>El establecimiento se reserva el derecho de modificar la oferta sin previo aviso.</li>
+                </ul>
+            </div>
+
+            <!-- Botones -->
+            <div class="promo-footer">
+                <a id="btn-ver-mapa" href="../mapa.html" class="btn-primary-promo">
+                    🗺️ Ver en el mapa
+                </a>
+                <a href="../mapa.html" class="btn-secondary-promo">
+                    ← Volver
+                </a>
+            </div>
+
+        </div><!-- /promo-card -->
+
+        <div class="nav-back">
+            <a href="../mapa.html">← Volver al mapa</a>
+        </div>
+    </div><!-- /state-content -->
+
+    <!-- ── Estado: sin promo / error ── -->
+    <div id="state-error" style="display:none;">
+        <div class="promo-page-header">
+            <h1>🏷️ Promociones</h1>
+        </div>
+        <div class="state-card">
+            <span class="state-emoji">😕</span>
+            <p class="state-title">Sin promociones activas</p>
+            <p class="state-desc">
+                Este punto no tiene promociones disponibles en este momento.<br>
+                ¡Vuelve pronto para ver nuevas ofertas!
+            </p>
+        </div>
+        <div class="nav-back">
+            <a href="../mapa.html">← Volver al mapa</a>
+        </div>
+    </div>
+
+</div><!-- /promo-wrap -->
+
+<script>
+    // ── Helpers ───────────────────────────────────────────────────────────────
+    function show(id) { document.getElementById(id).style.display = 'block'; }
+    function hide(id) { document.getElementById(id).style.display = 'none';  }
+
+    function formatFecha(isoStr) {
+        if (!isoStr) return '—';
+        // MySQL devuelve "YYYY-MM-DD HH:MM:SS"; lo parseamos manualmente
+        // para evitar problemas de zona horaria del navegador
+        const [datePart] = isoStr.split(' ');
+        const [y, m, d]  = datePart.split('-');
+        return `${d}/${m}/${y}`;
+    }
+
+    // ── Carga de datos ────────────────────────────────────────────────────────
+    async function cargarPromocion() {
+        const params = new URLSearchParams(window.location.search);
+        const idPdi  = params.get('id_pdi');
+
+        if (!idPdi) {
+            hide('state-loading');
+            show('state-error');
+            return;
+        }
+
+        try {
+            const res  = await fetch(`../api/promociones.php?id_pdi=${idPdi}`);
+            const data = await res.json();
+
+            if (!res.ok) {
+                hide('state-loading');
+                show('state-error');
+                return;
+            }
+
+            // Poblar campos
+            document.getElementById('promo-nombre').textContent     = data.nombre;
+            document.getElementById('promo-pdi-nombre').textContent = data.nombre_pdi;
+            document.getElementById('promo-desc').textContent       = data.informacion;
+            document.getElementById('promo-fechas').textContent     =
+                `Válido del ${formatFecha(data.fecha_inicio)} al ${formatFecha(data.fecha_fin)}`;
+
+            // Mostrar tarjeta
+            hide('state-loading');
+            show('state-content');
+
+        } catch (e) {
+            console.error('Error cargando promoción:', e);
+            hide('state-loading');
+            show('state-error');
+        }
+    }
+
+    cargarPromocion();
+</script>
+
+</body>
+</html>
