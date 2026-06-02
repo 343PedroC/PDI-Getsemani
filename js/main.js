@@ -11,16 +11,31 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(mapa);
 
-// ── ICONOS ───────────────────────────────────────────────────────────────────
-const iconos = {
-    Restaurante: L.icon({ iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png" }),
-    Bar:         L.icon({ iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png" }),
-    Tienda:      L.icon({ iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png" }),
-    Café:        L.icon({ iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png" }),
-    Hostal:      L.icon({ iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-violet.png" }),
-    Licorería:   L.icon({ iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-black.png" }),
-    default:     L.icon({ iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-yellow.png" })
+// ── COLORES POR CATEGORÍA ─────────────────────────────────────────────────────
+const colores = {
+    Restaurante:    "#2A81CB",
+    Bar:            "#CB2B3E",
+    Tienda:         "#2AAD27",
+    Café:           "#CB8427",
+    Hostal:         "#9C2BCB",
+    Licorería:      "#3D3D3D",
+    Hotel:          "#E84393",
+    "Casa de Cambio": "#00BFAE",
+    default:        "#CAC428"
 };
+
+function getRadio() {
+    const z = mapa.getZoom();
+    if (z >= 18) return 10;
+    if (z >= 17) return 8;
+    if (z >= 16) return 6;
+    return 5;
+}
+
+mapa.on('zoomend', () => {
+    const r = getRadio();
+    marcadores.forEach(item => item.marcador.setRadius(r));
+});
 
 // ── ESTRELLAS ─────────────────────────────────────────────────────────────────
 function generarEstrellas(n) {
@@ -105,8 +120,14 @@ async function cargarPOIs(categoria = "Todos") {
         const puntos = await res.json();
 
         for (const punto of puntos) {
-            const marcador = L.marker([punto.latitud, punto.longitud], {
-                icon: iconos[punto.categoria] || iconos.default
+            const color = colores[punto.categoria] || colores.default;
+            const marcador = L.circleMarker([punto.latitud, punto.longitud], {
+                radius:      getRadio(),
+                fillColor:   color,
+                color:       "#ffffff",
+                weight:      1.5,
+                opacity:     1,
+                fillOpacity: 0.9
             });
 
             // Popup con placeholder mientras carga
