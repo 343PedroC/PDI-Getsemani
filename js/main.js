@@ -178,6 +178,15 @@ btnVendedor?.addEventListener("click", () => {
     window.location.href = "html/promocionar.html";
 });
 
+// ── BOTÓN ADMIN (solo rol usuario_admin) ──────────────────────────────────────
+const btnAdmin = document.getElementById("btn-admin");
+if (usuario?.rol === "usuario_admin") {
+    btnAdmin.style.display = "block";
+}
+btnAdmin?.addEventListener("click", () => {
+    window.location.href = "html/panel_admin.html";
+});
+
 // ── BÚSQUEDA ─────────────────────────────────────────────────────────────────
 const BusquedaControl = L.Control.extend({
     options: { position: 'topleft' },

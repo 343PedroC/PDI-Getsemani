@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin · Getsemaní</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Nunito', Arial, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            padding: 28px 16px 52px;
+        }
+
+        .page-wrap { max-width: 740px; margin: 0 auto; }
+
+        /* ── Encabezado ── */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13.5px;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+        .back-link:hover { text-decoration: underline; }
+
+        .page-header { margin-bottom: 22px; }
+        .page-header h1 {
+            font-size: 26px;
+            font-weight: 800;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+        .page-header p { font-size: 14px; color: #7f8c8d; }
+
+        /* ── Tabs ── */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 22px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 140px;
+            padding: 13px 16px;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            font-family: 'Nunito', Arial, sans-serif;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+        }
+
+        /* Registrar — verde */
+        .tab-reg {
+            background: #eafaf1;
+            color: #1e8449;
+            border-color: #a9dfbf;
+        }
+        .tab-reg:hover, .tab-reg.activo {
+            background: #27ae60;
+            color: #fff;
+            border-color: #27ae60;
+        }
+
+        /* Editar — naranja */
+        .tab-edit {
+            background: #fef5e7;
+            color: #b7770d;
+            border-color: #f9e4b7;
+        }
+        .tab-edit:hover, .tab-edit.activo {
+            background: #e67e22;
+            color: #fff;
+            border-color: #e67e22;
+        }
+
+        /* Eliminar — rojo */
+        .tab-del {
+            background: #fdedec;
+            color: #a93226;
+            border-color: #f5b7b1;
+        }
+        .tab-del:hover, .tab-del.activo {
+            background: #e74c3c;
+            color: #fff;
+            border-color: #e74c3c;
+        }
+
+        /* ── Tarjeta de sección ── */
+        .sec-card {
+            background: #fff;
+            border-radius: 14px;
+            border: 1.5px solid #e3e8ee;
+            box-shadow: 0 3px 16px rgba(44, 62, 80, 0.09);
+            overflow: hidden;
+            animation: rise 0.28s ease both;
+        }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .sec-header {
+            padding: 15px 22px;
+            border-bottom: 1.5px solid #edf0f3;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .sec-header h2 { font-size: 16px; font-weight: 800; color: #2c3e50; }
+
+        .sec-header.green { border-left: 4px solid #27ae60; }
+        .sec-header.orange { border-left: 4px solid #e67e22; }
+        .sec-header.red { border-left: 4px solid #e74c3c; }
+
+        .sec-body { padding: 22px; }
+
+        /* ── Buscador de ID ── */
+        .id-search {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .id-search input {
+            flex: 1;
+        }
+
+        /* ── Campos de formulario ── */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-grid .full { grid-column: 1 / -1; }
+
+        @media (max-width: 520px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .form-grid .full { grid-column: 1; }
+        }
+
+        .form-group { margin-bottom: 0; }
+
+        label {
+            display: block;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 6px;
+            letter-spacing: 0.1px;
+        }
+
+        label .req { color: #e74c3c; margin-left: 2px; }
+        label .opt { color: #95a5a6; font-weight: 600; font-size: 11px; margin-left: 4px; }
+
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px 13px;
+            border: 1.5px solid #dde3e8;
+            border-radius: 8px;
+            font-family: 'Nunito', Arial, sans-serif;
+            font-size: 13.5px;
+            color: #2c3e50;
+            background: #fafbfc;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.12);
+            background: #fff;
+        }
+
+        input.err, textarea.err { border-color: #e74c3c; }
+
+        textarea { resize: vertical; min-height: 90px; }
+
+        /* ── Botones de acción del form ── */
+        .btn-action {
+            width: 100%;
+            margin-top: 20px;
+            padding: 13px;
+            border: none;
+            border-radius: 9px;
+            font-family: 'Nunito', Arial, sans-serif;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .btn-action:active { transform: scale(0.98); }
+        .btn-action:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .btn-green  { background: #27ae60; color: #fff; }
+        .btn-green:hover:not(:disabled)  { background: #219a52; }
+
+        .btn-orange { background: #e67e22; color: #fff; }
+        .btn-orange:hover:not(:disabled) { background: #ca6f1e; }
+
+        .btn-search { background: #3498db; color: #fff; white-space: nowrap; }
+        .btn-search:hover:not(:disabled) { background: #2980b9; }
+
+        /* ── Alerta inline ── */
+        .inline-alert {
+            display: none;
+            border-radius: 8px;
+            padding: 11px 14px;
+            font-size: 13.5px;
+            margin-bottom: 18px;
+            align-items: center;
+            gap: 8px;
+        }
+        .inline-alert.visible { display: flex; }
+        .alert-error   { background: #fef0f0; border: 1px solid #f5b7b1; color: #c0392b; }
+        .alert-success { background: #eafaf1; border: 1px solid #a9dfbf; color: #1e8449; }
+
+        /* ── Ficha de datos del PDI (vista readonly en Editar y Eliminar) ── */
+        .pdi-ficha {
+            display: none;
+        }
+
+        .pdi-ficha.visible { display: block; }
+
+        .ficha-id-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #eaf4fb;
+            border: 1px solid #bee3f8;
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 13px;
+            font-weight: 800;
+            color: #2471a3;
+            margin-bottom: 16px;
+        }
+
+        /* ── Bloque de confirmación de eliminación ── */
+        .del-confirm-box {
+            background: #fdedec;
+            border: 1.5px solid #f5b7b1;
+            border-radius: 10px;
+            padding: 18px;
+            margin-top: 20px;
+        }
+
+        .del-confirm-box p {
+            font-size: 13.5px;
+            color: #922b21;
+            line-height: 1.6;
+            margin-bottom: 14px;
+        }
+
+        .del-confirm-box strong { font-weight: 800; }
+
+        .del-check-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 13px;
+            color: #922b21;
+            cursor: pointer;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .del-check-label input[type="checkbox"] {
+            width: 17px;
+            height: 17px;
+            flex-shrink: 0;
+            margin-top: 1px;
+            accent-color: #e74c3c;
+            cursor: pointer;
+        }
+
+        .btn-red { background: #e74c3c; color: #fff; }
+        .btn-red:hover:not(:disabled) { background: #c0392b; }
+
+        /* ── Separador entre secciones del form ── */
+        .form-sep {
+            grid-column: 1 / -1;
+            border: none;
+            border-top: 1px dashed #e0e6ea;
+            margin: 4px 0;
+        }
+
+        /* ── Label de grupo ── */
+        .group-label {
+            grid-column: 1 / -1;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #95a5a6;
+            margin-bottom: -4px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+    <a href="../mapa.html" class="back-link">← Volver al mapa</a>
+
+    <div class="page-header">
+        <h1>⚙️ Panel de Administrador</h1>
+        <p>Gestión de Puntos de Interés · Getsemaní</p>
+    </div>
+
+    <!-- ── Tabs ── -->
+    <div class="tabs">
+        <button class="tab-btn tab-reg activo" onclick="showTab('reg')">
+            ➕ Registrar Punto
+        </button>
+        <button class="tab-btn tab-edit" onclick="showTab('edit')">
+            ✏️ Editar Punto
+        </button>
+        <button class="tab-btn tab-del" onclick="showTab('del')">
+            🗑️ Eliminar Punto
+        </button>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════
+         SECCIÓN 1 — REGISTRAR
+    ══════════════════════════════════════════════════ -->
+    <div id="sec-reg" class="sec-card">
+        <div class="sec-header green">
+            <span>➕</span><h2>Registrar Nuevo Punto</h2>
+        </div>
+        <div class="sec-body">
+
+            <div class="inline-alert alert-error" id="reg-error">
+                <span>⚠️</span><span id="reg-error-msg"></span>
+            </div>
+            <div class="inline-alert alert-success" id="reg-success">
+                <span>✅</span><span id="reg-success-msg"></span>
+            </div>
+
+            <div class="form-grid">
+                <p class="group-label">Información principal</p>
+
+                <div class="form-group full">
+                    <label>Nombre <span class="req">*</span></label>
+                    <input type="text" id="reg-nombre" maxlength="100"
+                           placeholder="Ej: Restaurante El Coroncoro">
+                </div>
+
+                <div class="form-group">
+                    <label>Categoría <span class="req">*</span></label>
+                    <input type="text" id="reg-categoria" maxlength="50"
+                           list="lista-categorias" placeholder="Ej: Restaurante">
+                </div>
+
+                <div class="form-group">
+                    <label>Dirección <span class="opt">(opcional)</span></label>
+                    <input type="text" id="reg-direccion" maxlength="200"
+                           placeholder="Cra. 10 #31-22">
+                </div>
+
+                <div class="form-group full">
+                    <label>Descripción <span class="opt">(opcional)</span></label>
+                    <textarea id="reg-descripcion" maxlength="500"
+                              placeholder="Describe brevemente el punto de interés…"></textarea>
+                </div>
+
+                <hr class="form-sep">
+                <p class="group-label">Coordenadas</p>
+
+                <div class="form-group">
+                    <label>Latitud <span class="req">*</span></label>
+                    <input type="number" id="reg-latitud" step="any"
+                           min="-90" max="90" placeholder="10.423332">
+                </div>
+
+                <div class="form-group">
+                    <label>Longitud <span class="req">*</span></label>
+                    <input type="number" id="reg-longitud" step="any"
+                           min="-180" max="180" placeholder="-75.545658">
+                </div>
+
+                <hr class="form-sep">
+                <p class="group-label">Metadatos</p>
+
+                <div class="form-group full">
+                    <label>Ruta de foto <span class="opt">(opcional)</span></label>
+                    <input type="text" id="reg-foto" maxlength="300"
+                           placeholder="Fotos/(lat, lon).jpg">
+                </div>
+
+                <div class="form-group">
+                    <label>ID Vendedor <span class="opt">(opcional)</span></label>
+                    <input type="number" id="reg-vendedor" min="1"
+                           placeholder="Dejar vacío si no aplica">
+                </div>
+            </div>
+
+            <button class="btn-action btn-green" onclick="registrarPDI()">
+                ➕ Registrar Punto
+            </button>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════
+         SECCIÓN 2 — EDITAR
+    ══════════════════════════════════════════════════ -->
+    <div id="sec-edit" class="sec-card" style="display:none;">
+        <div class="sec-header orange">
+            <span>✏️</span><h2>Editar Punto</h2>
+        </div>
+        <div class="sec-body">
+
+            <!-- Búsqueda por ID -->
+            <div class="id-search">
+                <input type="number" id="edit-id-buscar" min="1"
+                       placeholder="Ingresa el ID del punto a editar…"
+                       onkeydown="if(event.key==='Enter') buscarParaEditar()">
+                <button class="btn-action btn-search"
+                        style="width:auto;margin-top:0;padding:10px 18px;"
+                        onclick="buscarParaEditar()">
+                    🔍 Cargar
+                </button>
+            </div>
+
+            <div class="inline-alert alert-error" id="edit-error">
+                <span>⚠️</span><span id="edit-error-msg"></span>
+            </div>
+            <div class="inline-alert alert-success" id="edit-success">
+                <span>✅</span><span id="edit-success-msg"></span>
+            </div>
+
+            <!-- Formulario de edición (oculto hasta cargar) -->
+            <div id="edit-form" class="pdi-ficha">
+                <span class="ficha-id-badge">📌 Editando PDI #<span id="edit-id-label">—</span></span>
+
+                <div class="form-grid">
+                    <p class="group-label">Información principal</p>
+
+                    <div class="form-group full">
+                        <label>Nombre <span class="req">*</span></label>
+                        <input type="text" id="edit-nombre" maxlength="100">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Categoría <span class="req">*</span></label>
+                        <input type="text" id="edit-categoria" maxlength="50"
+                               list="lista-categorias">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Dirección</label>
+                        <input type="text" id="edit-direccion" maxlength="200">
+                    </div>
+
+                    <div class="form-group full">
+                        <label>Descripción</label>
+                        <textarea id="edit-descripcion" maxlength="500"></textarea>
+                    </div>
+
+                    <hr class="form-sep">
+                    <p class="group-label">Coordenadas</p>
+
+                    <div class="form-group">
+                        <label>Latitud <span class="req">*</span></label>
+                        <input type="number" id="edit-latitud" step="any" min="-90" max="90">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Longitud <span class="req">*</span></label>
+                        <input type="number" id="edit-longitud" step="any" min="-180" max="180">
+                    </div>
+
+                    <hr class="form-sep">
+                    <p class="group-label">Metadatos</p>
+
+                    <div class="form-group full">
+                        <label>Ruta de foto</label>
+                        <input type="text" id="edit-foto" maxlength="300">
+                    </div>
+
+                    <div class="form-group">
+                        <label>ID Vendedor</label>
+                        <input type="number" id="edit-vendedor" min="1"
+                               placeholder="Dejar vacío si no aplica">
+                    </div>
+                </div>
+
+                <button class="btn-action btn-orange" onclick="guardarEdicion()">
+                    💾 Guardar Cambios
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════
+         SECCIÓN 3 — ELIMINAR
+    ══════════════════════════════════════════════════ -->
+    <div id="sec-del" class="sec-card" style="display:none;">
+        <div class="sec-header red">
+            <span>🗑️</span><h2>Eliminar Punto</h2>
+        </div>
+        <div class="sec-body">
+
+            <!-- Búsqueda por ID -->
+            <div class="id-search">
+                <input type="number" id="del-id-buscar" min="1"
+                       placeholder="Ingresa el ID del punto a eliminar…"
+                       onkeydown="if(event.key==='Enter') buscarParaEliminar()">
+                <button class="btn-action btn-search"
+                        style="width:auto;margin-top:0;padding:10px 18px;"
+                        onclick="buscarParaEliminar()">
+                    🔍 Buscar
+                </button>
+            </div>
+
+            <div class="inline-alert alert-error" id="del-error">
+                <span>⚠️</span><span id="del-error-msg"></span>
+            </div>
+            <div class="inline-alert alert-success" id="del-success">
+                <span>✅</span><span id="del-success-msg"></span>
+            </div>
+
+            <!-- Ficha del PDI encontrado -->
+            <div id="del-ficha" class="pdi-ficha">
+                <span class="ficha-id-badge">📌 PDI #<span id="del-id-label">—</span></span>
+
+                <!-- Todos los campos del PDI en modo lectura -->
+                <div class="form-grid">
+                    <p class="group-label">Información principal</p>
+
+                    <div class="form-group full">
+                        <label>Nombre</label>
+                        <input type="text" id="del-nombre" readonly
+                               style="background:#f8f9fb; color:#7f8c8d;">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Categoría</label>
+                        <input type="text" id="del-categoria" readonly
+                               style="background:#f8f9fb; color:#7f8c8d;">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Dirección</label>
+                        <input type="text" id="del-direccion" readonly
+                               style="background:#f8f9fb; color:#7f8c8d;">
+                    </div>
+
+                    <div class="form-group full">
+                        <label>Descripción</label>
+                        <textarea id="del-descripcion" readonly rows="3"
+                                  style="background:#f8f9fb; color:#7f8c8d;"></textarea>
+                    </div>
+
+                    <hr class="form-sep">
+                    <p class="group-label">Coordenadas</p>
+
+                    <div class="form-group">
+                        <label>Latitud</label>
+                        <input type="text" id="del-latitud" readonly
+                               style="background:#f8f9fb; color:#7f8c8d;">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Longitud</label>
+                        <input type="text" id="del-longitud" readonly
+                               style="background:#f8f9fb; color:#7f8c8d;">
+                    </div>
+
+                    <hr class="form-sep">
+                    <p class="group-label">Metadatos</p>
+
+                    <div class="form-group full">
+                        <label>Ruta de foto</label>
+                        <input type="text" id="del-foto" readonly
+                               style="background:#f8f9fb; color:#7f8c8d;">
+                    </div>
+
+                    <div class="form-group">
+                        <label>ID Vendedor</label>
+                        <input type="text" id="del-vendedor" readonly
+                               style="background:#f8f9fb; color:#7f8c8d;">
+                    </div>
+
+                    <div class="form-group">
+                        <label>ID Admin</label>
+                        <input type="text" id="del-admin-ref" readonly
+                               style="background:#f8f9fb; color:#7f8c8d;">
+                    </div>
+                </div>
+
+                <!-- Bloque de confirmación -->
+                <div class="del-confirm-box">
+                    <p>
+                        ⚠️ <strong>Esta acción es irreversible.</strong> Se eliminará el punto
+                        junto con <strong>todas sus reseñas y promociones</strong> asociadas.
+                    </p>
+                    <label class="del-check-label">
+                        <input type="checkbox" id="del-confirm-check"
+                               onchange="document.getElementById('btn-eliminar').disabled = !this.checked;">
+                        Entiendo las consecuencias y confirmo la eliminación de este punto
+                    </label>
+                    <button class="btn-action btn-red" id="btn-eliminar"
+                            disabled onclick="eliminarPDI()">
+                        🗑️ Eliminar Punto Definitivamente
+                    </button>
+                </div>
+
+            </div><!-- /del-ficha -->
+
+        </div>
+    </div>
+
+</div><!-- /page-wrap -->
+
+<!-- Datalist de categorías (compartido por Registrar y Editar) -->
+<datalist id="lista-categorias">
+    <option value="Restaurante">
+    <option value="Bar">
+    <option value="Café">
+    <option value="Hostal">
+    <option value="Hotel">
+    <option value="Hotel Boutique">
+    <option value="Hospedaje">
+    <option value="Tienda">
+    <option value="Licorería">
+    <option value="Casa de Cambio">
+    <option value="Agencia de Tours">
+    <option value="Parqueadero">
+    <option value="Gran comercio">
+    <option value="Cultura">
+    <option value="Joyeria">
+    <option value="SPA">
+    <option value="Drogueria">
+    <option value="Lavanderia">
+    <option value="Discoteca">
+    <option value="Rooftop">
+    <option value="Alquiler de Bicicletas">
+    <option value="Ferretería">
+    <option value="Veterinaria">
+    <option value="Tienda Electrónica">
+    <option value="Zapatería">
+    <option value="Casino/Bingo">
+    <option value="Iglesia">
+</datalist>
+
+<script>
+    // ── Guardia: solo administradores ─────────────────────────────────────────
+    const usuario = JSON.parse(localStorage.getItem("usuarioActivo"));
+    if (!usuario || usuario.rol !== "usuario_admin") {
+        window.location.href = "../mapa.html";
+    }
+
+    // ── Control de tabs ───────────────────────────────────────────────────────
+    const TABS = {
+        reg:  { sec: 'sec-reg',  btn: document.querySelector('.tab-reg')  },
+        edit: { sec: 'sec-edit', btn: document.querySelector('.tab-edit') },
+        del:  { sec: 'sec-del',  btn: document.querySelector('.tab-del')  }
+    };
+
+    function showTab(id) {
+        Object.entries(TABS).forEach(([key, { sec, btn }]) => {
+            document.getElementById(sec).style.display = key === id ? 'block' : 'none';
+            btn.classList.toggle('activo', key === id);
+        });
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+    function showErr(prefix, msg) {
+        const el = document.getElementById(`${prefix}-error`);
+        document.getElementById(`${prefix}-error-msg`).textContent = msg;
+        el.classList.add('visible');
+        el.classList.remove('alert-success');
+        el.classList.add('alert-error');
+        document.getElementById(`${prefix}-success`).classList.remove('visible');
+    }
+
+    function showOk(prefix, msg) {
+        const el = document.getElementById(`${prefix}-success`);
+        document.getElementById(`${prefix}-success-msg`).textContent = msg;
+        el.classList.add('visible');
+        document.getElementById(`${prefix}-error`).classList.remove('visible');
+    }
+
+    function clearAlerts(prefix) {
+        document.getElementById(`${prefix}-error`).classList.remove('visible');
+        document.getElementById(`${prefix}-success`).classList.remove('visible');
+    }
+
+    // ── ① REGISTRAR PDI ───────────────────────────────────────────────────────
+    async function registrarPDI() {
+        clearAlerts('reg');
+
+        const nombre    = document.getElementById('reg-nombre').value.trim();
+        const categoria = document.getElementById('reg-categoria').value.trim();
+        const descripcion = document.getElementById('reg-descripcion').value.trim();
+        const direccion = document.getElementById('reg-direccion').value.trim();
+        const latitud   = parseFloat(document.getElementById('reg-latitud').value);
+        const longitud  = parseFloat(document.getElementById('reg-longitud').value);
+        const foto      = document.getElementById('reg-foto').value.trim();
+        const id_vend   = document.getElementById('reg-vendedor').value.trim();
+
+        if (!nombre)                 return showErr('reg', 'El nombre es obligatorio.');
+        if (!categoria)              return showErr('reg', 'La categoría es obligatoria.');
+        if (isNaN(latitud))          return showErr('reg', 'La latitud es obligatoria y debe ser un número.');
+        if (isNaN(longitud))         return showErr('reg', 'La longitud es obligatoria y debe ser un número.');
+
+        const btn = document.querySelector('#sec-reg .btn-action');
+        btn.disabled = true;
+        btn.textContent = '⏳ Registrando...';
+
+        try {
+            const res  = await fetch('../api/registrar_pdi.php', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    nombre, categoria, descripcion, direccion,
+                    latitud, longitud, foto,
+                    id_vendedor: id_vend || null,
+                    id_admin: usuario.id_admin
+                })
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                showErr('reg', data.error || 'Error al registrar.');
+            } else {
+                showOk('reg', `✅ Punto registrado con ID #${data.id_pdi}. Ya aparece en el mapa.`);
+                // Limpiar form
+                ['reg-nombre','reg-categoria','reg-descripcion','reg-direccion',
+                 'reg-latitud','reg-longitud','reg-foto','reg-vendedor']
+                    .forEach(id => document.getElementById(id).value = '');
+            }
+        } catch (e) {
+            showErr('reg', 'Error de conexión con el servidor.');
+        } finally {
+            btn.disabled    = false;
+            btn.textContent = '➕ Registrar Punto';
+        }
+    }
+
+    // ── ② EDITAR PDI — buscar ──────────────────────────────────────────────────
+    async function buscarParaEditar() {
+        clearAlerts('edit');
+        document.getElementById('edit-form').classList.remove('visible');
+
+        const id = document.getElementById('edit-id-buscar').value.trim();
+        if (!id) return showErr('edit', 'Ingresa el ID del punto.');
+
+        try {
+            const res  = await fetch(`../api/pdi_por_id.php?id_pdi=${id}`);
+            const data = await res.json();
+
+            if (!res.ok) return showErr('edit', data.error || 'No encontrado.');
+
+            // Poblar formulario
+            document.getElementById('edit-id-label').textContent     = data.id_pdi;
+            document.getElementById('edit-nombre').value             = data.nombre        || '';
+            document.getElementById('edit-categoria').value          = data.categoria     || '';
+            document.getElementById('edit-descripcion').value        = data.descripcion   || '';
+            document.getElementById('edit-direccion').value          = data.direccion     || '';
+            document.getElementById('edit-latitud').value            = data.latitud       || '';
+            document.getElementById('edit-longitud').value           = data.longitud      || '';
+            document.getElementById('edit-foto').value               = data.foto          || '';
+            document.getElementById('edit-vendedor').value           = data.id_vendedor   || '';
+
+            document.getElementById('edit-form').classList.add('visible');
+            document.getElementById('edit-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        } catch (e) {
+            showErr('edit', 'Error de conexión con el servidor.');
+        }
+    }
+
+    // ── ② EDITAR PDI — guardar ────────────────────────────────────────────────
+    async function guardarEdicion() {
+        clearAlerts('edit');
+
+        const id_pdi    = parseInt(document.getElementById('edit-id-label').textContent);
+        const nombre    = document.getElementById('edit-nombre').value.trim();
+        const categoria = document.getElementById('edit-categoria').value.trim();
+        const descripcion = document.getElementById('edit-descripcion').value.trim();
+        const direccion = document.getElementById('edit-direccion').value.trim();
+        const latitud   = parseFloat(document.getElementById('edit-latitud').value);
+        const longitud  = parseFloat(document.getElementById('edit-longitud').value);
+        const foto      = document.getElementById('edit-foto').value.trim();
+        const id_vend   = document.getElementById('edit-vendedor').value.trim();
+
+        if (!nombre)        return showErr('edit', 'El nombre es obligatorio.');
+        if (!categoria)     return showErr('edit', 'La categoría es obligatoria.');
+        if (isNaN(latitud)) return showErr('edit', 'La latitud debe ser un número válido.');
+        if (isNaN(longitud))return showErr('edit', 'La longitud debe ser un número válido.');
+
+        const btn = document.querySelector('#sec-edit .btn-action.btn-orange');
+        btn.disabled = true;
+        btn.textContent = '⏳ Guardando...';
+
+        try {
+            const res  = await fetch('../api/editar_pdi.php', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id_pdi, nombre, categoria, descripcion, direccion,
+                    latitud, longitud, foto,
+                    id_vendedor: id_vend || null,
+                    id_admin: usuario.id_admin
+                })
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                showErr('edit', data.error || 'Error al guardar.');
+            } else {
+                showOk('edit', `✅ Punto #${id_pdi} actualizado correctamente.`);
+            }
+        } catch (e) {
+            showErr('edit', 'Error de conexión con el servidor.');
+        } finally {
+            btn.disabled    = false;
+            btn.textContent = '💾 Guardar Cambios';
+        }
+    }
+
+    // ── ③ ELIMINAR PDI — buscar ───────────────────────────────────────────────
+    async function buscarParaEliminar() {
+        clearAlerts('del');
+        document.getElementById('del-ficha').classList.remove('visible');
+        document.getElementById('del-confirm-check').checked = false;
+        document.getElementById('btn-eliminar').disabled = true;
+
+        const id = document.getElementById('del-id-buscar').value.trim();
+        if (!id) return showErr('del', 'Ingresa el ID del punto.');
+
+        try {
+            const res  = await fetch(`../api/pdi_por_id.php?id_pdi=${id}`);
+            const data = await res.json();
+
+            if (!res.ok) return showErr('del', data.error || 'No encontrado.');
+
+            // Poblar ficha de lectura
+            document.getElementById('del-id-label').textContent  = data.id_pdi;
+            document.getElementById('del-nombre').value          = data.nombre        || '—';
+            document.getElementById('del-categoria').value       = data.categoria     || '—';
+            document.getElementById('del-descripcion').value     = data.descripcion   || '—';
+            document.getElementById('del-direccion').value       = data.direccion     || '—';
+            document.getElementById('del-latitud').value         = data.latitud       ?? '—';
+            document.getElementById('del-longitud').value        = data.longitud      ?? '—';
+            document.getElementById('del-foto').value            = data.foto          || '—';
+            document.getElementById('del-vendedor').value        = data.id_vendedor   ?? '—';
+            document.getElementById('del-admin-ref').value       = data.id_admin      ?? '—';
+
+            document.getElementById('del-ficha').classList.add('visible');
+            document.getElementById('del-ficha').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        } catch (e) {
+            showErr('del', 'Error de conexión con el servidor.');
+        }
+    }
+
+    // ── ③ ELIMINAR PDI — confirmar ────────────────────────────────────────────
+    async function eliminarPDI() {
+        clearAlerts('del');
+
+        const id_pdi = parseInt(document.getElementById('del-id-label').textContent);
+        if (!id_pdi) return;
+
+        const btn = document.getElementById('btn-eliminar');
+        btn.disabled    = true;
+        btn.textContent = '⏳ Eliminando...';
+
+        try {
+            const res  = await fetch('../api/eliminar_pdi.php', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id_pdi, id_admin: usuario.id_admin })
+            });
+            const data = await res.json();
+
+            if (!res.ok) {
+                showErr('del', data.error || 'Error al eliminar.');
+                btn.disabled    = false;
+                btn.textContent = '🗑️ Eliminar Punto Definitivamente';
+            } else {
+                showOk('del', `✅ Punto #${id_pdi} eliminado con todos sus datos relacionados.`);
+                // Ocultar la ficha y resetear
+                document.getElementById('del-ficha').classList.remove('visible');
+                document.getElementById('del-id-buscar').value = '';
+                document.getElementById('del-confirm-check').checked = false;
+            }
+        } catch (e) {
+            showErr('del', 'Error de conexión con el servidor.');
+            btn.disabled    = false;
+            btn.textContent = '🗑️ Eliminar Punto Definitivamente';
+        }
+    }
+</script>
+
+</body>
+</html>
