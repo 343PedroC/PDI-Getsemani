@@ -1,0 +1,13 @@
+{
+  "appId": "com.getsemani.pdi",
+  "appName": "Getsemani PDI",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": true
+  },
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  }
+}

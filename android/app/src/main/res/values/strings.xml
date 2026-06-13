@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Getsemani PDI</string>
+    <string name="title_activity_main">Getsemani PDI</string>
+    <string name="package_name">com.getsemani.pdi</string>
+    <string name="custom_url_scheme">com.getsemani.pdi</string>
+</resources>
